@@ -1,0 +1,103 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+env:
+  NODE_VERSION: '22'
+  PNPM_VERSION: '10'
+
+jobs:
+  quality:
+    name: Lint & TypeCheck & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+
+  test:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: campusos
+          POSTGRES_PASSWORD: campusos
+          POSTGRES_DB: campusos_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: cd apps/api && npx prisma generate
+        env:
+          DATABASE_URL: postgresql://campusos:campusos@localhost:5432/campusos_test
+
+      - name: Run Prisma migrations
+        run: cd apps/api && npx prisma migrate deploy
+        env:
+          DATABASE_URL: postgresql://campusos:campusos@localhost:5432/campusos_test
+
+      - name: Run tests
+        run: pnpm test
+        env:
+          DATABASE_URL: postgresql://campusos:campusos@localhost:5432/campusos_test
+          REDIS_URL: redis://localhost:6379
+          JWT_SECRET: test-secret-do-not-use-in-production
