@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware, BadRequestException } from '@nestjs/common';
 import type { Request, Response, NextFunction } from 'express';
-import { PrismaService } from '@api/prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { ERROR_CODES } from '@campusos/shared';
 
 @Injectable()

@@ -1,0 +1,18 @@
+[nixpacks]
+# Railway uses Nixpacks to auto-detect build settings
+# https://docs.railway.app/reference/nixpacks
+
+[phases.setup]
+nixPkgs = ["nodejs_22", "pnpm"]
+
+[phases.install]
+cmds = ["pnpm install --frozen-lockfile"]
+
+[phases.build]
+cmds = [
+  "cd apps/api && npx prisma generate",
+  "pnpm build --filter=@campusos/api"
+]
+
+[start]
+cmd = "cd apps/api && npx prisma migrate deploy && node dist/main"

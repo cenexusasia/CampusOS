@@ -17,7 +17,7 @@ import { TenantsService } from './tenants.service';
 import { CreateTenantDto } from './dto/create-tenant.dto';
 import { UpdateTenantDto } from './dto/update-tenant.dto';
 import { InviteUserDto } from './dto/invite-user.dto';
-import { JwtAuthGuard } from '@api/modules/auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('Tenants')
 @Controller('tenants')
