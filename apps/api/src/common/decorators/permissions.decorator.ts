@@ -1,5 +1,5 @@
 import { SetMetadata } from '@nestjs/common';
-import type { Permission } from '../../shared';
+import type { Permission } from '@campusos/shared';
 
 export const PERMISSIONS_KEY = 'permissions';
 export const RequirePermissions = (...permissions: Permission[]) =>

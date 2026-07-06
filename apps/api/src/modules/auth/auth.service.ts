@@ -13,7 +13,7 @@ import type { LoginDto } from './dto/login.dto';
 import type { RegisterDto } from './dto/register.dto';
 import {
   ERROR_CODES,
-} from '../../shared';
+} from '@campusos/shared';
 
 export interface TokenPair {
   accessToken: string;

@@ -1,7 +1,7 @@
 import { Injectable, NestMiddleware, BadRequestException } from '@nestjs/common';
 import type { Request, Response, NextFunction } from 'express';
 import { PrismaService } from '../../prisma/prisma.service';
-import { ERROR_CODES } from '../../shared';
+import { ERROR_CODES } from '@campusos/shared';
 
 @Injectable()
 export class TenantMiddleware implements NestMiddleware {
