@@ -1,0 +1,471 @@
+// =============================================================================
+// CampusOS Prisma Schema
+// =============================================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [pgvector(map: "vector")]
+}
+
+// =============================================================================
+// Auth.js Models (NextAuth v5 / Auth.js)
+// =============================================================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String?
+  image         String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  accounts              Account[]
+  sessions              Session[]
+  tenantMemberships     TenantMembership[]
+  auditLogs             AuditLog[]
+  notifications         Notification[]
+  notificationSettings  NotificationSetting[]
+  courseEnrollments     CourseEnrollment[]
+  sectionEnrollments    SectionEnrollment[]
+  aiConversations       AIConversation[]
+  fileUploads           FileUpload[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String  // oauth, oidc, email, saml
+  provider          String  // google, github, microsoft, saml, oidc, credentials
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+  type       String   @default("email") // email, password_reset, invitation
+
+  @@id([identifier, token])
+  @@map("verification_tokens")
+}
+
+// =============================================================================
+// Tenant & Multi-Tenancy Models
+// =============================================================================
+
+model Tenant {
+  id        String   @id @default(cuid())
+  name      String
+  slug      String   @unique
+  domain    String?
+  logo      String?
+  planId    String?
+  status    String   @default("TRIAL") // ACTIVE, SUSPENDED, TRIAL, DELETED
+  settings  Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  plan             Plan?              @relation(fields: [planId], references: [id], onDelete: SetNull)
+  memberships      TenantMembership[]
+  auditLogs        AuditLog[]
+  courses          Course[]
+  departments      Department[]
+  connectors       Connector[]
+  aiConversations  AIConversation[]
+  documents        Document[]
+  fileUploads      FileUpload[]
+  schedules        Schedule[]
+  events           Event[]
+  notifications    Notification[]
+
+  @@map("tenants")
+}
+
+model TenantMembership {
+  id          String   @id @default(cuid())
+  userId      String
+  tenantId    String
+  role        String   @default("MEMBER") // OWNER, ADMIN, MEMBER
+  permissions Json     @default("[]")
+  joinedAt    DateTime @default(now())
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tenantId])
+  @@map("tenant_memberships")
+}
+
+model Plan {
+  id               String   @id @default(cuid())
+  name             String
+  tier             String   // STARTER, PROFESSIONAL, ENTERPRISE
+  price            Float    @default(0)
+  currency         String   @default("USD")
+  features         Json     @default("{}")
+  maxUsers         Int      @default(10)
+  maxConnectors    Int      @default(1)
+  maxStorageMb     Int      @default(1024)
+  aiCreditsMonthly Int      @default(1000)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  tenants Tenant[]
+
+  @@map("plans")
+}
+
+// =============================================================================
+// Academic Models
+// =============================================================================
+
+model Course {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  code        String
+  description String?
+  credits     Int?
+  syllabus    Json?
+  status      String   @default("DRAFT") // DRAFT, ACTIVE, ARCHIVED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tenant    Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  enrollments CourseEnrollment[]
+  sections   Section[]
+  tags       CourseTagOnCourse[]
+
+  @@unique([tenantId, code])
+  @@map("courses")
+}
+
+model Section {
+  id        String   @id @default(cuid())
+  courseId  String
+  name      String
+  capacity  Int      @default(30)
+  schedule  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  course      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrollments SectionEnrollment[]
+
+  @@map("sections")
+}
+
+model CourseEnrollment {
+  id        String   @id @default(cuid())
+  courseId  String
+  userId    String
+  status    String   @default("ENROLLED") // ENROLLED, COMPLETED, DROPPED
+  grade     Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([courseId, userId])
+  @@map("course_enrollments")
+}
+
+model SectionEnrollment {
+  id        String   @id @default(cuid())
+  sectionId String
+  userId    String
+  status    String   @default("ENROLLED")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  section Section @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([sectionId, userId])
+  @@map("section_enrollments")
+}
+
+model Department {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  code        String
+  description String?
+  parentId    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tenant   Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  parent   Department?  @relation("DepartmentHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children Department[] @relation("DepartmentHierarchy")
+
+  @@unique([tenantId, code])
+  @@map("departments")
+}
+
+model CourseTag {
+  id        String @id @default(cuid())
+  tenantId  String
+  name      String
+  color     String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  courses CourseTagOnCourse[]
+
+  @@unique([tenantId, name])
+  @@map("course_tags")
+}
+
+model CourseTagOnCourse {
+  courseId String
+  tagId    String
+
+  // Relations
+  course Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  tag    CourseTag @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([courseId, tagId])
+  @@map("course_tags_on_courses")
+}
+
+// =============================================================================
+// AI & Documents
+// =============================================================================
+
+model AIConversation {
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String
+  title     String?
+  model     String   @default("gpt-4o")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tenant  Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user    User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages AIMessage[]
+
+  @@map("ai_conversations")
+}
+
+model AIMessage {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String   // system, user, assistant, tool
+  content        String   @db.Text
+  tokens         Int?
+  createdAt      DateTime @default(now())
+
+  // Relations
+  conversation AIConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@map("ai_messages")
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  description String?
+  filePath    String
+  mimeType    String
+  size        Int
+  status      String   @default("PROCESSING") // PROCESSING, READY, ERROR
+  metadata    Json?
+  embedding   Unsupported("vector(1536)")?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@map("documents")
+}
+
+model FileUpload {
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String
+  name      String
+  filePath  String
+  mimeType  String
+  size      Int
+  bucket    String   @default("uploads")
+  createdAt DateTime @default(now())
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("file_uploads")
+}
+
+// =============================================================================
+// Scheduling & Events
+// =============================================================================
+
+model Schedule {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String
+  recurrence String? // NONE, DAILY, WEEKLY, BIWEEKLY, MONTHLY
+  startDate DateTime
+  endDate   DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tenant Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  events Event[]
+
+  @@map("schedules")
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  tenantId    String
+  scheduleId  String?
+  title       String
+  description String?
+  location    String?
+  startTime   DateTime
+  endTime     DateTime
+  allDay      Boolean  @default(false)
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  schedule Schedule? @relation(fields: [scheduleId], references: [id], onDelete: SetNull)
+
+  @@map("events")
+}
+
+// =============================================================================
+// Notifications
+// =============================================================================
+
+model Notification {
+  id        String   @id @default(cuid())
+  tenantId  String
+  userId    String
+  title     String
+  body      String   @db.Text
+  type      String   @default("INFO") // INFO, SUCCESS, WARNING, ERROR
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
+}
+
+model NotificationSetting {
+  id     String @id @default(cuid())
+  userId String
+  channel String @default("IN_APP") // IN_APP, EMAIL, PUSH
+  enabled Boolean @default(true)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channel])
+  @@map("notification_settings")
+}
+
+// =============================================================================
+// Connectors (Third-Party Integrations)
+// =============================================================================
+
+model Connector {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String
+  type      String   // LMS, SIS, HRIS, ERP
+  provider  String   // canvas, moodle, powerschool, workday, etc.
+  config    Json     @default("{}")
+  status    String   @default("NOT_CONFIGURED") // NOT_CONFIGURED, CONFIGURING, ACTIVE, ERROR, DISABLED
+  lastSync  DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, name])
+  @@map("connectors")
+}
+
+// =============================================================================
+// Audit Logs
+// =============================================================================
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  tenantId   String?
+  userId     String?
+  action     String   // CREATE, READ, UPDATE, DELETE
+  resource   String   // users, courses, tenants, etc.
+  resourceId String?
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  // Relations
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
