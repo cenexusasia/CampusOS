@@ -2,7 +2,8 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "declarationMap": false,
-    "sourceMap": false
+    "sourceMap": false,
+    "skipLibCheck": true
   },
   "exclude": ["node_modules", "dist", "test", "**/*.spec.ts", "**/*.test.ts"]
 }
