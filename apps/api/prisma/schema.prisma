@@ -83,6 +83,7 @@ model Tenant {
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
   aiConversations AIConversation[]
+  aiProviders     AIProvider[]
   auditLogs       AuditLog[]
   connectors      Connector[]
   courses         Course[]
@@ -259,22 +260,52 @@ model AIMessage {
   @@map("ai_messages")
 }
 
+model AIProvider {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String
+  type      String
+  apiKey    String
+  baseUrl   String?
+  models    Json     @default("[]")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, name])
+  @@map("ai_providers")
+}
+
 model Document {
-  id          String                 @id @default(cuid())
+  id          String          @id @default(cuid())
   tenantId    String
   name        String
   description String?
   filePath    String
   mimeType    String
   size        Int
-  status      String                 @default("PROCESSING")
+  status      String          @default("PROCESSING")
   metadata    Json?
   embedding   Unsupported("vector")?
-  createdAt   DateTime               @default(now())
-  updatedAt   DateTime               @updatedAt
-  tenant      Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  chunks      DocumentChunk[]
 
   @@map("documents")
+}
+
+model DocumentChunk {
+  id         String   @id @default(cuid())
+  documentId String
+  content    String
+  chunkIndex Int
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@map("document_chunks")
 }
 
 model FileUpload {

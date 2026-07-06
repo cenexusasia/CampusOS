@@ -209,3 +209,102 @@ export interface WsMessage<T = unknown> {
   payload: T;
   timestamp: string;
 }
+
+// ---- AI Provider ---------------------------------------------------------
+
+export enum AIProviderType {
+  OPENAI = 'openai',
+  ANTHROPIC = 'anthropic',
+  GOOGLE = 'google',
+  OPENROUTER = 'openrouter',
+}
+
+export interface AIProviderConfig {
+  id: string;
+  tenantId: string;
+  name: string;
+  type: AIProviderType;
+  apiKey: string;
+  baseUrl: string | null;
+  models: string[];
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// ---- AI Chat -------------------------------------------------------------
+
+export interface AIConversation {
+  id: string;
+  tenantId: string;
+  userId: string;
+  title: string | null;
+  model: string;
+  createdAt: Date;
+  updatedAt: Date;
+  messages?: AIMessage[];
+}
+
+export interface AIMessage {
+  id: string;
+  conversationId: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  tokens: number | null;
+  createdAt: Date;
+}
+
+export interface AIChatRequest {
+  conversationId?: string;
+  message: string;
+  model?: string;
+  providerId?: string;
+}
+
+export interface AIChatStreamChunk {
+  id: string;
+  conversationId: string;
+  role: string;
+  delta: string;
+  createdAt: string;
+}
+
+// ---- RAG / Knowledge Base ------------------------------------------------
+
+export interface DocumentInfo {
+  id: string;
+  tenantId: string;
+  name: string;
+  description: string | null;
+  filePath: string;
+  mimeType: string;
+  size: number;
+  status: 'PROCESSING' | 'READY' | 'ERROR';
+  metadata: Record<string, unknown> | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DocumentChunkInfo {
+  id: string;
+  documentId: string;
+  content: string;
+  chunkIndex: number;
+  metadata: Record<string, unknown> | null;
+  createdAt: Date;
+}
+
+export interface SearchResult {
+  chunkId: string;
+  documentId: string;
+  content: string;
+  documentName: string;
+  score: number;
+  metadata: Record<string, unknown> | null;
+}
+
+export interface ContextAssemblyResult {
+  systemPrompt: string;
+  contextChunks: SearchResult[];
+  totalTokens: number;
+}
