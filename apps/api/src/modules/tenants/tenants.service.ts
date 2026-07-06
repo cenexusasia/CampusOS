@@ -5,7 +5,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { ERROR_CODES, type PaginationParams } from '@campusos/shared';
+import { ERROR_CODES, type PaginationParams } from '../../shared';
 import type { CreateTenantDto } from './dto/create-tenant.dto';
 import type { UpdateTenantDto } from './dto/update-tenant.dto';
 import type { InviteUserDto } from './dto/invite-user.dto';
