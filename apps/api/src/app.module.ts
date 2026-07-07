@@ -8,6 +8,12 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UsersModule } from './modules/users/users.module';
 import { TenantsModule } from './modules/tenants/tenants.module';
 import { AIModule } from './modules/ai/ai.module';
+import { ConnectorsModule } from './modules/connectors/connectors.module';
+import { NotificationsModule } from './modules/notifications/notifications.module';
+import { CoursesModule } from './modules/courses/courses.module';
+import { StudentsModule } from './modules/students/students.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { SettingsModule } from './modules/settings/settings.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 
 @Module({
@@ -36,6 +42,12 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     UsersModule,
     TenantsModule,
     AIModule,
+    CoursesModule,
+    StudentsModule,
+    AnalyticsModule,
+    SettingsModule,
+  ],
+    NotificationsModule,
   ],
 })
 export class AppModule implements NestModule {
