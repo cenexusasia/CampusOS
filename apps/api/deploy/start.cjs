@@ -1,25 +1,16 @@
-/**
- * Start script for Railway deployment.
- * Resolves @campusos/shared module alias before booting the app.
- */
 const Module = require('module');
 const path = require('path');
 const fs = require('fs');
 
-const originalResolve = Module._resolveFilename;
+const orig = Module._resolveFilename;
 
-Module._resolveFilename = function (request, parent) {
-  if (request === '@campusos/shared') {
-    // Try deploy/dist first, then apps/api/dist as fallback
-    const candidates = [
-      path.resolve(__dirname, 'dist', 'shared.js'),
-      path.resolve(__dirname, '..', 'apps', 'api', 'dist', 'shared.js'),
-    ];
-    for (const p of candidates) {
-      if (fs.existsSync(p)) return p;
-    }
+Module._resolveFilename = function (req, parent) {
+  if (req === '@campusos/shared') {
+    const p = path.resolve(__dirname, '..', '..', 'dist', 'shared.js');
+    if (fs.existsSync(p)) return p;
   }
-  return originalResolve.call(this, request, parent);
+  return orig.call(this, req, parent);
 };
 
-require('./dist/main');
+const main = path.resolve(__dirname, '..', '..', 'dist', 'main.js');
+require(main);
