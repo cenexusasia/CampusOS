@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
-import { GraduationCap, Search, Plus, Mail, Phone } from 'lucide-react';
+import { Search, Plus, Mail, Phone, BookOpen, GraduationCap } from 'lucide-react';
 
 interface FacultyMember {
   name: string;
@@ -23,6 +23,19 @@ const SAMPLE_FACULTY: FacultyMember[] = [
   { name: 'Dr. William Foster', department: 'Computer Science', title: 'Professor', email: 'william.foster@campus.edu', courses: 4 },
 ];
 
+const departmentColors: Record<string, string> = {
+  'Computer Science': 'from-blue-500/20 to-cyan-500/10',
+  'Business Administration': 'from-amber-500/20 to-orange-500/10',
+  'Data Science': 'from-purple-500/20 to-fuchsia-500/10',
+  'English & Literature': 'from-rose-500/20 to-pink-500/10',
+  'Mathematics': 'from-emerald-500/20 to-teal-500/10',
+  'Physics': 'from-indigo-500/20 to-violet-500/10',
+};
+
+function getInitials(name: string): string {
+  return name.split(' ').map((n) => n.replace(/^(Dr\.|Prof\.)\s*/, '')[0]).join('');
+}
+
 export default function FacultyPage() {
   const [search, setSearch] = useState('');
 
@@ -34,75 +47,113 @@ export default function FacultyPage() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 page-enter">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Faculty</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Manage teaching staff, assignments, and faculty profiles.
           </p>
         </div>
-        <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90">
+        <button className="btn-primary">
           <Plus className="h-4 w-4" />
           Add Faculty
         </button>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
+      {/* Quick stats + search */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap gap-3">
+          <div className="inline-flex items-center gap-2 rounded-xl border bg-card px-4 py-2 shadow-sm">
+            <GraduationCap className="h-4 w-4 text-primary" />
+            <span className="text-sm font-medium">{SAMPLE_FACULTY.length} Members</span>
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-xl border bg-card px-4 py-2 shadow-sm">
+            <BookOpen className="h-4 w-4 text-muted-foreground" />
+            <span className="text-sm font-medium">
+              {SAMPLE_FACULTY.reduce((sum, f) => sum + f.courses, 0)} Courses
+            </span>
+          </div>
+        </div>
+        <div className="relative max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             placeholder="Search by name, department, or title..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+            className="input-modern pl-10"
           />
         </div>
       </div>
 
+      {/* Faculty grid */}
       {filtered.length === 0 ? (
-        <div className="flex items-center justify-center rounded-lg border bg-card py-12">
-          <p className="text-sm text-muted-foreground">No faculty members found.</p>
+        <div className="flex flex-col items-center justify-center rounded-xl border bg-card py-16 shadow-sm">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted/50">
+            <GraduationCap className="h-8 w-8 text-muted-foreground/40" />
+          </div>
+          <h3 className="mt-4 text-sm font-medium">No faculty members found</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Try adjusting your search criteria.
+          </p>
+          <button
+            onClick={() => setSearch('')}
+            className="mt-4 text-xs font-medium text-primary hover:underline"
+          >
+            Clear search
+          </button>
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((faculty) => (
             <div
               key={faculty.email}
-              className="rounded-lg border bg-card p-5 shadow-sm transition-shadow hover:shadow-md"
+              className="card-lift group relative rounded-xl border bg-card p-5 shadow-sm"
             >
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-medium text-primary">
-                  {faculty.name.split(' ').map((n) => n[0]).join('')}
+              {/* Avatar + info */}
+              <div className="flex flex-col items-center text-center">
+                <div className={`flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br ${departmentColors[faculty.department] || 'from-primary/20 to-primary/10'} text-lg font-bold text-primary ring-2 ring-background transition-transform duration-200 group-hover:scale-105`}>
+                  {getInitials(faculty.name)}
                 </div>
-                <div className="min-w-0">
-                  <h3 className="truncate font-semibold">{faculty.name}</h3>
-                  <p className="text-xs text-muted-foreground">{faculty.title}</p>
+                <h3 className="mt-3 font-semibold text-sm">{faculty.name}</h3>
+                <p className="text-xs text-muted-foreground">{faculty.title}</p>
+              </div>
+
+              {/* Department tag */}
+              <div className="mt-3 flex justify-center">
+                <span className="inline-flex items-center rounded-full bg-muted/50 px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
+                  {faculty.department}
+                </span>
+              </div>
+
+              {/* Detail rows */}
+              <div className="mt-4 space-y-2 border-t pt-4">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Email</span>
+                  <a href={`mailto:${faculty.email}`} className="font-medium text-primary hover:underline">
+                    {faculty.email}
+                  </a>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Courses</span>
+                  <span className="inline-flex items-center gap-1 font-medium">
+                    <BookOpen className="h-3 w-3 text-muted-foreground" />
+                    {faculty.courses}
+                  </span>
                 </div>
               </div>
-              <div className="mt-4 space-y-2 border-t pt-4 text-xs text-muted-foreground">
-                <div className="flex justify-between">
-                  <span>Department</span>
-                  <span className="font-medium text-foreground">{faculty.department}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Email</span>
-                  <span className="font-medium text-foreground">{faculty.email}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Courses</span>
-                  <span className="font-medium text-foreground">{faculty.courses}</span>
-                </div>
-                <div className="flex items-center gap-2 pt-1">
-                  <button className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-accent">
-                    <Mail className="h-3 w-3" />
-                    Email
-                  </button>
-                  <button className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors hover:bg-accent">
-                    <Phone className="h-3 w-3" />
-                    Call
-                  </button>
-                </div>
+
+              {/* Action buttons */}
+              <div className="mt-4 flex gap-2">
+                <button className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border bg-background py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+                  <Mail className="h-3 w-3" />
+                  Email
+                </button>
+                <button className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border bg-background py-2 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
+                  <Phone className="h-3 w-3" />
+                  Call
+                </button>
               </div>
             </div>
           ))}

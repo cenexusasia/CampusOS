@@ -2,13 +2,58 @@
 
 export const dynamic = 'force-dynamic';
 
-import { BarChart3, TrendingUp, Users, BookOpen, GraduationCap, DollarSign, Activity } from 'lucide-react';
+import { useState } from 'react';
+import {
+  BarChart3,
+  TrendingUp,
+  TrendingDown,
+  Users,
+  BookOpen,
+  GraduationCap,
+  DollarSign,
+  Activity,
+  Filter,
+  ArrowUpRight,
+  ArrowDownRight,
+} from 'lucide-react';
 
 const METRICS = [
-  { label: 'Total Students', value: '2,100', change: '+5.2%', icon: Users, color: 'text-blue-600 bg-blue-100' },
-  { label: 'Active Courses', value: '138', change: '+3.8%', icon: BookOpen, color: 'text-green-600 bg-green-100' },
-  { label: 'Faculty', value: '69', change: '+2.1%', icon: GraduationCap, color: 'text-purple-600 bg-purple-100' },
-  { label: 'Revenue', value: '$14.2M', change: '+8.4%', icon: DollarSign, color: 'text-amber-600 bg-amber-100' },
+  {
+    label: 'Total Students',
+    value: '2,100',
+    change: '+5.2%',
+    changeUp: true,
+    icon: Users,
+    gradient: 'from-blue-500 to-cyan-400',
+    bgGradient: 'from-blue-500/10 to-cyan-500/5',
+  },
+  {
+    label: 'Active Courses',
+    value: '138',
+    change: '+3.8%',
+    changeUp: true,
+    icon: BookOpen,
+    gradient: 'from-emerald-500 to-teal-400',
+    bgGradient: 'from-emerald-500/10 to-teal-500/5',
+  },
+  {
+    label: 'Faculty',
+    value: '69',
+    change: '+2.1%',
+    changeUp: true,
+    icon: GraduationCap,
+    gradient: 'from-purple-500 to-fuchsia-400',
+    bgGradient: 'from-purple-500/10 to-fuchsia-500/5',
+  },
+  {
+    label: 'Revenue',
+    value: '$14.2M',
+    change: '+8.4%',
+    changeUp: true,
+    icon: DollarSign,
+    gradient: 'from-amber-500 to-orange-400',
+    bgGradient: 'from-amber-500/10 to-orange-500/5',
+  },
 ];
 
 const ENROLLMENT_DATA = [
@@ -35,31 +80,78 @@ const MONTHLY_TREND = [
   { month: 'Dec', value: 100 },
 ];
 
+const KPIS = [
+  { label: 'Graduation Rate', value: '87%', target: '85%' },
+  { label: 'Retention Rate', value: '92%', target: '90%' },
+  { label: 'Student-Faculty Ratio', value: '18:1', target: '20:1' },
+  { label: 'Course Completion Rate', value: '94%', target: '90%' },
+  { label: 'Job Placement Rate', value: '78%', target: '80%' },
+  { label: 'Average GPA', value: '3.42', target: '3.30' },
+];
+
+type TimeFrame = '7d' | '30d' | '90d' | '1y';
+
 export default function AnalyticsPage() {
+  const [timeframe, setTimeframe] = useState<TimeFrame>('30d');
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Institution-wide metrics, trends, and data-driven insights.
-        </p>
+    <div className="space-y-6 page-enter">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Analytics</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Institution-wide metrics, trends, and data-driven insights.
+          </p>
+        </div>
+        <div className="flex items-center gap-1.5 rounded-xl border bg-card p-1 shadow-sm">
+          {([
+            { key: '7d' as const, label: '7 days' },
+            { key: '30d' as const, label: '30 days' },
+            { key: '90d' as const, label: '90 days' },
+            { key: '1y' as const, label: 'This year' },
+          ]).map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setTimeframe(key)}
+              className={`rounded-lg px-3.5 py-1.5 text-xs font-medium transition-all duration-200 ${
+                timeframe === key
+                  ? 'bg-primary text-primary-foreground shadow-sm'
+                  : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Metric cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {METRICS.map((metric) => (
-          <div key={metric.label} className="rounded-lg border bg-card p-4 shadow-sm">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">{metric.label}</p>
-              <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${metric.color}`}>
-                <metric.icon className="h-4 w-4" />
+        {METRICS.map((metric, i) => (
+          <div
+            key={metric.label}
+            className={`card-lift rounded-xl border bg-card p-5 shadow-sm slide-up delay-${(i + 1) * 100}`}
+          >
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">{metric.label}</p>
+                <p className="mt-1 text-3xl font-bold tracking-tight">{metric.value}</p>
+              </div>
+              <div className={`flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${metric.bgGradient}`}>
+                <metric.icon className={`h-5 w-5 bg-gradient-to-br ${metric.gradient} bg-clip-text text-transparent`} />
               </div>
             </div>
-            <p className="mt-2 text-2xl font-bold tracking-tight">{metric.value}</p>
-            <div className="mt-1 flex items-center gap-1 text-xs">
-              <TrendingUp className="h-3.5 w-3.5 text-green-500" />
-              <span className="font-medium text-green-600">{metric.change}</span>
-              <span className="text-muted-foreground">vs last year</span>
+            <div className="mt-3 flex items-center gap-1.5">
+              {metric.changeUp ? (
+                <ArrowUpRight className="h-3.5 w-3.5 text-emerald-500" />
+              ) : (
+                <ArrowDownRight className="h-3.5 w-3.5 text-destructive" />
+              )}
+              <span className={`text-xs font-medium ${metric.changeUp ? 'text-emerald-600' : 'text-destructive'}`}>
+                {metric.change}
+              </span>
+              <span className="text-xs text-muted-foreground">vs last {timeframe === '1y' ? 'year' : timeframe}</span>
             </div>
           </div>
         ))}
@@ -67,49 +159,51 @@ export default function AnalyticsPage() {
 
       {/* Charts row */}
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* CSS Bar chart - Enrollment by Department */}
-        <div className="rounded-lg border bg-card p-5 shadow-sm">
-          <h3 className="mb-5 flex items-center gap-2 font-semibold">
+        {/* Bar chart - Enrollment by Department */}
+        <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <h3 className="flex items-center gap-2 text-sm font-semibold">
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
             Enrollment by Department
           </h3>
-          <div className="flex items-end gap-3" style={{ height: 200 }}>
+          <div className="mt-6 flex items-end gap-3" style={{ height: 200 }}>
             {ENROLLMENT_DATA.map((item) => (
               <div key={item.dept} className="flex flex-1 flex-col items-center justify-end gap-2">
-                <div className="w-full rounded-t-sm bg-primary transition-all duration-500 ease-out"
+                <span className="text-[10px] font-medium text-muted-foreground">{item.count}</span>
+                <div
+                  className="w-full rounded-t-md bg-gradient-to-t from-primary to-primary/60 transition-all duration-700 ease-out hover:from-primary/90 hover:to-primary/50"
                   style={{ height: `${item.pct * 1.8}%`, minHeight: 4 }}
                 />
-                <span className="text-xs text-muted-foreground">{item.dept}</span>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 flex justify-center gap-4 text-xs text-muted-foreground">
-            {ENROLLMENT_DATA.map((item) => (
-              <div key={item.dept} className="flex items-center gap-1">
-                <div className="h-2 w-2 rounded-full bg-primary" />
-                <span>{item.count}</span>
+                <span className="text-[11px] font-medium text-muted-foreground">{item.dept}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* CSS Line chart - Enrollment Trend */}
-        <div className="rounded-lg border bg-card p-5 shadow-sm">
-          <h3 className="mb-5 flex items-center gap-2 font-semibold">
+        {/* Line chart - Enrollment Trend */}
+        <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <h3 className="flex items-center gap-2 text-sm font-semibold">
             <Activity className="h-4 w-4 text-muted-foreground" />
             Monthly Enrollment Trend
           </h3>
-          <div className="relative" style={{ height: 200 }}>
+          <div className="relative mt-4" style={{ height: 200 }}>
             <svg viewBox="0 0 500 180" className="h-full w-full" preserveAspectRatio="none">
               {/* Grid lines */}
               {[0, 25, 50, 75, 100].map((y) => (
-                <line key={y} x1="0" y1={y * 1.6} x2="500" y2={y * 1.6} stroke="currentColor" strokeOpacity="0.1" strokeWidth="1" />
+                <line
+                  key={y}
+                  x1="0" y1={y * 1.6} x2="500" y2={y * 1.6}
+                  stroke="currentColor" strokeOpacity="0.06" strokeWidth="1"
+                />
               ))}
               {/* Area fill */}
+              <defs>
+                <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="currentColor" stopOpacity="0.15" className="text-primary" />
+                  <stop offset="100%" stopColor="currentColor" stopOpacity="0.01" className="text-primary" />
+                </linearGradient>
+              </defs>
               <polygon
-                fill="currentColor"
-                fillOpacity="0.1"
-                className="text-primary"
+                fill="url(#areaGradient)"
                 points={MONTHLY_TREND.map((d, i) => {
                   const x = (i / (MONTHLY_TREND.length - 1)) * 500;
                   const y = 160 - (d.value / 100) * 160;
@@ -135,12 +229,15 @@ export default function AnalyticsPage() {
                 const x = (i / (MONTHLY_TREND.length - 1)) * 500;
                 const y = 160 - (d.value / 100) * 160;
                 return (
-                  <circle key={d.month} cx={x} cy={y} r="3" fill="currentColor" className="text-primary" />
+                  <g key={d.month}>
+                    <circle cx={x} cy={y} r="4" fill="currentColor" className="text-primary" />
+                    <circle cx={x} cy={y} r="7" fill="currentColor" className="text-primary opacity-20" />
+                  </g>
                 );
               })}
             </svg>
           </div>
-          <div className="mt-2 flex justify-between px-1 text-xs text-muted-foreground">
+          <div className="mt-2 flex justify-between px-1 text-[11px] text-muted-foreground">
             {MONTHLY_TREND.filter((_, i) => i % 2 === 0).map((d) => (
               <span key={d.month}>{d.month}</span>
             ))}
@@ -148,31 +245,55 @@ export default function AnalyticsPage() {
         </div>
       </div>
 
-      {/* KPIs */}
-      <div className="rounded-lg border bg-card p-5 shadow-sm">
-        <h3 className="mb-4 flex items-center gap-2 font-semibold">
-          <TrendingUp className="h-4 w-4 text-muted-foreground" />
+      {/* KPI Grid */}
+      <div className="rounded-xl border bg-card p-5 shadow-sm">
+        <h3 className="mb-5 flex items-center gap-2 text-sm font-semibold">
+          <Filter className="h-4 w-4 text-muted-foreground" />
           Key Performance Indicators
         </h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            { label: 'Graduation Rate', value: '87%', target: '85%' },
-            { label: 'Retention Rate', value: '92%', target: '90%' },
-            { label: 'Student-Faculty Ratio', value: '18:1', target: '20:1' },
-            { label: 'Course Completion Rate', value: '94%', target: '90%' },
-            { label: 'Job Placement Rate', value: '78%', target: '80%' },
-            { label: 'Average GPA', value: '3.42', target: '3.30' },
-          ].map((kpi) => (
-            <div key={kpi.label} className="flex items-center justify-between rounded-md border bg-muted/30 px-4 py-3 text-sm">
-              <span className="text-muted-foreground">{kpi.label}</span>
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-muted-foreground">Target: {kpi.target}</span>
-                <span className={`font-semibold ${kpi.value >= kpi.target ? 'text-green-600' : 'text-amber-600'}`}>
-                  {kpi.value}
-                </span>
+          {KPIS.map((kpi) => {
+            const isPositive = kpi.value >= kpi.target;
+            return (
+              <div
+                key={kpi.label}
+                className="group rounded-xl border bg-muted/20 p-4 transition-all hover:bg-muted/40 hover:shadow-sm"
+              >
+                <div className="flex items-start justify-between">
+                  <p className="text-sm font-medium">{kpi.label}</p>
+                  <div
+                    className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                      isPositive
+                        ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                        : 'bg-amber-50 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                    }`}
+                  >
+                    {isPositive ? (
+                      <ArrowUpRight className="h-3 w-3" />
+                    ) : (
+                      <ArrowDownRight className="h-3 w-3" />
+                    )}
+                    Target: {kpi.target}
+                  </div>
+                </div>
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-2xl font-bold tracking-tight">{kpi.value}</span>
+                  <span className="text-xs text-muted-foreground">current</span>
+                </div>
+                {/* Mini progress bar */}
+                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      isPositive
+                        ? 'bg-gradient-to-r from-emerald-500 to-teal-400'
+                        : 'bg-gradient-to-r from-amber-500 to-orange-400'
+                    }`}
+                    style={{ width: isPositive ? '100%' : `${(parseFloat(kpi.value) / parseFloat(kpi.target)) * 100}%` }}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

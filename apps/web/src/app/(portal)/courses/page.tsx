@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
-import { BookOpen, Search, Plus, MoreHorizontal } from 'lucide-react';
+import { Search, Plus, BookOpen, Users, GraduationCap, Clock } from 'lucide-react';
 
 interface Course {
   code: string;
@@ -25,10 +25,18 @@ const SAMPLE_COURSES: Course[] = [
   { code: 'BUS 310', name: 'Marketing Strategy', department: 'Business Administration', instructor: 'Prof. Michael Torres', students: 41, status: 'Active' },
 ];
 
-const statusStyles: Record<Course['status'], string> = {
-  Active: 'bg-green-100 text-green-700',
-  Inactive: 'bg-muted text-muted-foreground',
-};
+const gradientBorders = [
+  'from-blue-500 to-cyan-400',
+  'from-emerald-500 to-teal-400',
+  'from-purple-500 to-fuchsia-400',
+  'from-amber-500 to-orange-400',
+  'from-rose-500 to-pink-400',
+  'from-indigo-500 to-violet-400',
+];
+
+function getInstructorInitials(name: string): string {
+  return name.split(' ').map((n) => n.replace(/^(Dr\.|Prof\.)\s*/, '')[0]).join('');
+}
 
 export default function CoursesPage() {
   const [search, setSearch] = useState('');
@@ -41,88 +49,130 @@ export default function CoursesPage() {
       c.instructor.toLowerCase().includes(search.toLowerCase())
   );
 
+  const activeCount = SAMPLE_COURSES.filter((c) => c.status === 'Active').length;
+  const inactiveCount = SAMPLE_COURSES.filter((c) => c.status === 'Inactive').length;
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 page-enter">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Courses</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Browse and manage course offerings, curricula, and schedules.
           </p>
         </div>
-        <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90">
+        <button className="btn-primary">
           <Plus className="h-4 w-4" />
           Add Course
         </button>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            placeholder="Search by code, name, department, or instructor..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border bg-background py-2 pl-10 pr-4 text-sm outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
-          />
+      {/* Summary pills */}
+      <div className="flex flex-wrap gap-3">
+        <div className="inline-flex items-center gap-2 rounded-xl border bg-card px-4 py-2 shadow-sm">
+          <BookOpen className="h-4 w-4 text-primary" />
+          <span className="text-sm font-medium">{SAMPLE_COURSES.length} Total</span>
+        </div>
+        <div className="inline-flex items-center gap-2 rounded-xl border bg-card px-4 py-2 shadow-sm">
+          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          <span className="text-sm font-medium text-emerald-600">{activeCount} Active</span>
+        </div>
+        <div className="inline-flex items-center gap-2 rounded-xl border bg-card px-4 py-2 shadow-sm">
+          <span className="h-2 w-2 rounded-full bg-muted-foreground" />
+          <span className="text-sm font-medium text-muted-foreground">{inactiveCount} Inactive</span>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-lg border bg-card">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Code</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Department</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Instructor</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Students</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-sm text-muted-foreground">
-                    No courses found.
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((course) => (
-                  <tr key={course.code} className="border-b last:border-0 transition-colors hover:bg-muted/30">
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-mono font-medium">{course.code}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                          <BookOpen className="h-4 w-4 text-primary" />
-                        </div>
-                        <span className="text-sm font-medium">{course.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{course.department}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{course.instructor}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{course.students}</td>
-                    <td className="px-6 py-4">
-                      <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${statusStyles[course.status]}`}>
-                        {course.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <button className="rounded-md p-1.5 text-muted-foreground hover:bg-accent">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+      {/* Search */}
+      <div className="relative max-w-sm">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <input
+          placeholder="Search by code, name, department, or instructor..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="input-modern pl-10"
+        />
       </div>
+
+      {/* Course cards */}
+      {filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border bg-card py-16 shadow-sm">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted/50">
+            <BookOpen className="h-8 w-8 text-muted-foreground/40" />
+          </div>
+          <h3 className="mt-4 text-sm font-medium">No courses found</h3>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Try adjusting your search criteria.
+          </p>
+          <button
+            onClick={() => setSearch('')}
+            className="mt-4 text-xs font-medium text-primary hover:underline"
+          >
+            Clear search
+          </button>
+        </div>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((course, i) => (
+            <div
+              key={course.code}
+              className="card-lift group relative overflow-hidden rounded-xl border bg-card shadow-sm"
+            >
+              {/* Gradient accent border top */}
+              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradientBorders[i % gradientBorders.length]}`} />
+
+              <div className="p-5 pt-6">
+                {/* Course code + status */}
+                <div className="flex items-start justify-between">
+                  <span className="rounded-lg bg-muted px-2 py-0.5 text-xs font-mono font-medium text-muted-foreground">
+                    {course.code}
+                  </span>
+                  <span className={course.status === 'Active' ? 'badge-success' : 'badge-neutral'}>
+                    {course.status}
+                  </span>
+                </div>
+
+                {/* Course name */}
+                <h3 className="mt-3 text-sm font-semibold leading-snug">{course.name}</h3>
+                <p className="mt-1 text-xs text-muted-foreground">{course.department}</p>
+
+                <div className="mt-4 space-y-2.5 border-t pt-4">
+                  {/* Instructor */}
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">
+                      {getInstructorInitials(course.instructor)}
+                    </div>
+                    <span className="text-xs text-muted-foreground">{course.instructor}</span>
+                  </div>
+
+                  {/* Enrollment */}
+                  <div className="flex items-center gap-2.5">
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+                      <Users className="h-3.5 w-3.5" />
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-xs font-medium">{course.students}</span>
+                      <span className="text-xs text-muted-foreground">students enrolled</span>
+                    </div>
+                    <div className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
+                      <Clock className="h-3 w-3" />
+                      <span>Fall 2024</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Hover overlay action */}
+                <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-primary/0 opacity-0 transition-all duration-200 group-hover:bg-primary/5 group-hover:opacity-100">
+                  <button className="btn-primary scale-90 opacity-0 transition-all duration-200 group-hover:scale-100 group-hover:opacity-100">
+                    View Details
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
