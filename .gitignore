@@ -45,3 +45,5 @@ pnpm-debug.log*
 
 .vercel
 pnpm-lock.yaml
+!/apps/api/deploy
+/apps/api/deploy/node_modules
