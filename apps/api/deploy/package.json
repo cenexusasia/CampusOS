@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "prisma generate",
-    "start": "node dist/main",
+    "start": "node start.cjs",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate deploy"
   },
