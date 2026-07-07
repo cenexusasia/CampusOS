@@ -3,7 +3,7 @@
 import { Suspense, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle, GraduationCap, Eye, EyeOff } from 'lucide-react';
 
 function LoginForm() {
   const router = useRouter();
@@ -13,6 +13,7 @@ function LoginForm() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,75 +42,109 @@ function LoginForm() {
     }
   };
 
+  const displayError = error || (errorParam === 'CredentialsSignin' ? 'Invalid email or password. Please try again.' : null);
+
   return (
-    <div className="rounded-xl border bg-card p-8 shadow-sm">
-      <div className="mb-8 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">Welcome back</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Sign in to your CampusOS account
-        </p>
+    <div className="w-full max-w-sm">
+      {/* Logo */}
+      <div className="mb-8 flex flex-col items-center gap-3">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary shadow-lg shadow-primary/25">
+          <GraduationCap className="h-7 w-7 text-primary-foreground" />
+        </div>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold tracking-tight">CampusOS</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            AI Operating System for Education
+          </p>
+        </div>
       </div>
 
-      {errorParam === 'CredentialsSignin' && (
-        <div className="mb-4 flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          <span>Invalid email or password. Please try again.</span>
+      {/* Card */}
+      <div className="rounded-2xl border bg-card p-8 shadow-lg ring-1 ring-black/5 fade-in">
+        <div className="mb-6 text-center">
+          <h2 className="text-xl font-bold tracking-tight">Welcome back</h2>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Sign in to your CampusOS account
+          </p>
         </div>
-      )}
 
-      {error && !errorParam && (
-        <div className="mb-4 flex items-center gap-2 rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          <span>{error}</span>
-        </div>
-      )}
+        {/* Error message with animation */}
+        {displayError && (
+          <div className="mb-5 flex items-start gap-2.5 rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive slide-up">
+            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{displayError}</span>
+          </div>
+        )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="space-y-2">
-          <label htmlFor="email" className="text-sm font-medium">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => { setEmail(e.target.value); }}
-            placeholder="name@school.edu"
-            required
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-1.5">
+            <label htmlFor="email" className="text-sm font-medium text-foreground">
+              Email
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => { setEmail(e.target.value); }}
+              placeholder="name@school.edu"
+              required
+              disabled={isLoading}
+              autoComplete="email"
+              className="input-modern"
+            />
+          </div>
+
+          <div className="space-y-1.5">
+            <label htmlFor="password" className="text-sm font-medium text-foreground">
+              Password
+            </label>
+            <div className="relative">
+              <input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); }}
+                placeholder="Enter your password"
+                required
+                disabled={isLoading}
+                autoComplete="current-password"
+                className="input-modern pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+                tabIndex={-1}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
             disabled={isLoading}
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          />
-        </div>
+            className="btn-primary w-full"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Signing in...
+              </>
+            ) : (
+              'Sign in'
+            )}
+          </button>
+        </form>
 
-        <div className="space-y-2">
-          <label htmlFor="password" className="text-sm font-medium">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => { setPassword(e.target.value); }}
-            placeholder="Enter your password"
-            required
-            disabled={isLoading}
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-          {isLoading ? 'Signing in...' : 'Sign in'}
-        </button>
-      </form>
-
-      <p className="mt-6 text-center text-sm text-muted-foreground">
-        SSO and OAuth providers will be available in a future update.
-      </p>
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          SSO and OAuth providers will be available in a future update.
+        </p>
+      </div>
     </div>
   );
 }
@@ -118,9 +153,11 @@ export default function LoginPage() {
   return (
     <Suspense
       fallback={
-        <div className="rounded-xl border bg-card p-8 shadow-sm">
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        <div className="w-full max-w-sm">
+          <div className="rounded-2xl border bg-card p-8 shadow-lg ring-1 ring-black/5">
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
           </div>
         </div>
       }
