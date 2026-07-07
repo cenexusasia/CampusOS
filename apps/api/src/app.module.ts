@@ -42,12 +42,12 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     UsersModule,
     TenantsModule,
     AIModule,
+    ConnectorsModule,
+    NotificationsModule,
     CoursesModule,
     StudentsModule,
     AnalyticsModule,
     SettingsModule,
-  ],
-    NotificationsModule,
   ],
 })
 export class AppModule implements NestModule {

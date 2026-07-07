@@ -158,6 +158,48 @@ export class AnalyticsService {
     return { distribution, totalCourses: courses.length };
   }
 
+  async getRevenue(tenantId: string) {
+    const [tenant, allTenants] = await Promise.all([
+      this.prisma.tenant.findUnique({
+        where: { id: tenantId },
+        select: {
+          plan: {
+            select: { name: true, tier: true, price: true, currency: true },
+          },
+          memberships: { select: { id: true } },
+        },
+      }),
+      this.prisma.tenant.count(),
+    ]);
+
+    if (!tenant) {
+      return {
+        planName: 'Free',
+        planTier: 'FREE',
+        price: 0,
+        currency: 'USD',
+        userCount: 0,
+        estimatedRevenue: 0,
+        totalTenants: allTenants,
+      };
+    }
+
+    const userCount = tenant.memberships.length;
+    const price = tenant.plan?.price ?? 0;
+    const currency = tenant.plan?.currency ?? 'USD';
+    const tier = tenant.plan?.tier ?? 'FREE';
+
+    return {
+      planName: tenant.plan?.name ?? 'Free',
+      planTier: tier,
+      price,
+      currency,
+      userCount,
+      estimatedRevenue: price,
+      totalTenants: allTenants,
+    };
+  }
+
   async getActivityLog(
     tenantId: string,
     params: { page?: number; perPage?: number; action?: string },

@@ -1,6 +1,7 @@
 import {
   Injectable,
   NotFoundException,
+  ConflictException,
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -11,6 +12,88 @@ export class StudentsService {
   private readonly logger = new Logger(StudentsService.name);
 
   constructor(private readonly prisma: PrismaService) {}
+
+  async create(data: {
+    tenantId: string;
+    email: string;
+    name?: string;
+    role?: string;
+    permissions?: string[];
+  }) {
+    // Find the user by email
+    const user = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    if (!user) {
+      throw new NotFoundException({
+        code: ERROR_CODES.USER_NOT_FOUND,
+        message: `No user found with email: ${data.email}`,
+      });
+    }
+
+    // Check if user is already a member of this tenant
+    const existing = await this.prisma.tenantMembership.findUnique({
+      where: { userId_tenantId: { userId: user.id, tenantId: data.tenantId } },
+    });
+
+    if (existing) {
+      throw new ConflictException({
+        code: ERROR_CODES.CONFLICT,
+        message: 'User is already a member of this tenant',
+      });
+    }
+
+    const membership = await this.prisma.tenantMembership.create({
+      data: {
+        userId: user.id,
+        tenantId: data.tenantId,
+        role: data.role ?? 'MEMBER',
+        permissions: data.permissions ?? [],
+      },
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, image: true },
+        },
+      },
+    });
+
+    this.logger.log(`Student created: ${user.email} in tenant ${data.tenantId}`);
+    return membership;
+  }
+
+  async update(
+    userId: string,
+    data: { tenantId: string; role?: string; permissions?: string[] },
+  ) {
+    const membership = await this.prisma.tenantMembership.findUnique({
+      where: { userId_tenantId: { userId, tenantId: data.tenantId } },
+    });
+
+    if (!membership) {
+      throw new NotFoundException({
+        code: ERROR_CODES.NOT_FOUND,
+        message: 'Student membership not found in this tenant',
+      });
+    }
+
+    const updateData: Record<string, unknown> = {};
+    if (data.role !== undefined) updateData.role = data.role;
+    if (data.permissions !== undefined) updateData.permissions = data.permissions;
+
+    const updated = await this.prisma.tenantMembership.update({
+      where: { userId_tenantId: { userId, tenantId: data.tenantId } },
+      data: updateData,
+      include: {
+        user: {
+          select: { id: true, name: true, email: true, image: true },
+        },
+      },
+    });
+
+    this.logger.log(`Student updated: ${userId} in tenant ${data.tenantId}`);
+    return updated;
+  }
 
   async findAll(
     tenantId: string,

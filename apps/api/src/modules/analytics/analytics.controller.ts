@@ -53,6 +53,15 @@ export class AnalyticsController {
     return this.analyticsService.getStudentDistribution(tenantId);
   }
 
+  @Get('revenue')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Get revenue analytics (plan-based estimates)' })
+  @ApiQuery({ name: 'tenantId', required: true })
+  getRevenue(@Query('tenantId') tenantId: string) {
+    return this.analyticsService.getRevenue(tenantId);
+  }
+
   @Get('activity')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')

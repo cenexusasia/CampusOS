@@ -1,9 +1,14 @@
 import {
   Controller,
   Get,
+  Post,
+  Put,
+  Body,
   Param,
   Query,
   UseGuards,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { StudentsService } from './students.service';
@@ -29,6 +34,24 @@ export class StudentsController {
     return this.studentsService.findAll(tenantId, query);
   }
 
+  @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Create a new student (add user to tenant)' })
+  @HttpCode(HttpStatus.CREATED)
+  create(
+    @Body()
+    data: {
+      tenantId: string;
+      email: string;
+      name?: string;
+      role?: string;
+      permissions?: string[];
+    },
+  ) {
+    return this.studentsService.create(data);
+  }
+
   @Get(':userId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth('access-token')
@@ -39,6 +62,22 @@ export class StudentsController {
     @Param('userId') userId: string,
   ) {
     return this.studentsService.findById(tenantId, userId);
+  }
+
+  @Put(':userId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('access-token')
+  @ApiOperation({ summary: 'Update a student (membership role/permissions)' })
+  update(
+    @Param('userId') userId: string,
+    @Body()
+    data: {
+      tenantId: string;
+      role?: string;
+      permissions?: string[];
+    },
+  ) {
+    return this.studentsService.update(userId, data);
   }
 
   @Get(':userId/enrollments')
