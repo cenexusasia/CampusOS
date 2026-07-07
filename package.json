@@ -11,7 +11,8 @@
     "test": "turbo test",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md,css}\"",
-    "clean": "turbo clean"
+    "clean": "turbo clean",
+    "start": "node apps/api/dist/main"
   },
   "devDependencies": {
     "turbo": "^2.3.0",
