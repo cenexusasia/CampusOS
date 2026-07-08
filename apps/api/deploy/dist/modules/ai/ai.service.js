@@ -77,6 +77,15 @@ let AIService = AIService_1 = class AIService {
                 model = client(modelName);
                 break;
             }
+            case 'deepseek': {
+                const { createOpenAI } = await Promise.resolve().then(() => __importStar(require('@ai-sdk/openai')));
+                const client = createOpenAI({
+                    baseURL: config.baseUrl ?? 'https://api.deepseek.com/v1',
+                    apiKey: config.apiKey,
+                });
+                model = client(modelName);
+                break;
+            }
             default:
                 throw new Error(`Unknown provider: ${config.provider}`);
         }

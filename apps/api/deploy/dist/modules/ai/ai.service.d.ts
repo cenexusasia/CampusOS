@@ -1,7 +1,7 @@
 export interface AIProviderConfig {
     id: string;
     name: string;
-    provider: 'openai' | 'anthropic' | 'google' | 'openrouter';
+    provider: 'openai' | 'anthropic' | 'google' | 'openrouter' | 'deepseek';
     apiKey: string;
     baseUrl?: string;
     models: string[];

@@ -28,10 +28,11 @@ let AIController = class AIController {
             messages: body.messages.map(m => ({ role: m.role, content: m.content })),
         }, {
             id: 'default',
-            name: 'Default',
-            provider: 'openai',
-            apiKey: process.env['OPENAI_API_KEY'] || '',
-            models: ['gpt-4o'],
+            name: 'DeepSeek',
+            provider: 'deepseek',
+            apiKey: process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY || '',
+            baseUrl: 'https://api.deepseek.com/v1',
+            models: ['deepseek-chat'],
             isActive: true,
         });
     }

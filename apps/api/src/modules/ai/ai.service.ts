@@ -3,7 +3,7 @@ import { Injectable, Logger } from '@nestjs/common';
 export interface AIProviderConfig {
   id: string;
   name: string;
-  provider: 'openai' | 'anthropic' | 'google' | 'openrouter';
+  provider: 'openai' | 'anthropic' | 'google' | 'openrouter' | 'deepseek';
   apiKey: string;
   baseUrl?: string;
   models: string[];
@@ -63,6 +63,15 @@ export class AIService {
         const client = createOpenAICompatible({
           name: 'openrouter',
           baseURL: config.baseUrl ?? 'https://openrouter.ai/api/v1',
+          apiKey: config.apiKey,
+        });
+        model = client(modelName);
+        break;
+      }
+      case 'deepseek': {
+        const { createOpenAI } = await import('@ai-sdk/openai');
+        const client = createOpenAI({
+          baseURL: config.baseUrl ?? 'https://api.deepseek.com/v1',
           apiKey: config.apiKey,
         });
         model = client(modelName);
