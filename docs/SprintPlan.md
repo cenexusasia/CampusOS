@@ -19,17 +19,19 @@
 | S1-04 | **Deploy Cleanup** | ✅ | Hardcoded key removed → Railway env var, orphaned files cleaned |
 | S1-05 | **Documentation Suite** | ✅ | 12 files, 81KB, 6 ADRs, OSS evaluation |
 
-## Active Sprint: Sprint 2 — AI RAG & Infrastructure
+## Completed Sprint: Sprint 2 — AI RAG & Infrastructure ✅
+...
+## Active Sprint: Sprint 3 — Connector SDK & Event System
 
-**Goal:** Add job queue, document processing pipeline, semantic search, AI agents.
+**Goal:** Build extensible connector SDK, event bus, webhooks.
 
 | ID | Story | Points | Status |
 |----|-------|--------|--------|
-| S2-01 | **Redis + BullMQ Job Queue** — QueueModule, QueueService, graceful Redis fallback | 5 | ✅ |
-| S2-02 | **Document Processing Pipeline** — Text extraction (PDF/DOCX/TXT/MD), chunking, DocumentChunk creation | 5 | 🔄 |
-| S2-03 | **Semantic Search** — pgvector extension, DeepSeek embeddings, vector similarity search | 8 | 📝 |
-| S2-04 | **AI Agents** — Goal-driven agent framework, multi-step task execution | 8 | 📝 |
-| S2-05 | **Real Analytics Data** — Replace hardcoded charts with live API calls | 3 | 📝 |
+| S3-01 | **Connector SDK** — ConnectorPlugin interface, ConnectorRegistry, refactored Moodle/OpenSIS/Google | 8 | ✅ |
+| S3-02 | **Event Bus** — BullMQ-based pub/sub with typed events, graceful Redis fallback | 5 | ✅ |
+| S3-03 | **Webhook System** — Register/deliver/retry/log webhooks with HMAC signing | 5 | ✅ |
+| S3-04 | **ERPNext Connector** — Finance + HR data sync | 5 | 📝 |
+| S3-05 | **Google Workspace OAuth** — Complete OAuth flow | 3 | 📝 |
 
 ### Definition of Done (per Story)
 - [ ] TypeScript compiles with zero errors
