@@ -1,7 +1,4 @@
-import { AIService } from './ai.service';
 export declare class AIController {
-    private readonly aiService;
-    constructor(aiService: AIService);
     chat(body: {
         model?: string;
         system?: string;
@@ -9,5 +6,13 @@ export declare class AIController {
             role: string;
             content: string;
         }[];
-    }): Promise<import("./ai.service").GenerateResult>;
+    }): Promise<{
+        content: any;
+        finishReason: any;
+        usage: {
+            promptTokens: any;
+            completionTokens: any;
+            totalTokens: any;
+        };
+    }>;
 }

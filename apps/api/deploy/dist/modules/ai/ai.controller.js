@@ -15,33 +15,51 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AIController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
-const ai_service_1 = require("./ai.service");
+const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
 let AIController = class AIController {
-    aiService;
-    constructor(aiService) {
-        this.aiService = aiService;
-    }
     async chat(body) {
-        return this.aiService.generate({
-            model: body.model,
-            system: body.system,
-            messages: body.messages.map(m => ({ role: m.role, content: m.content })),
-        }, {
-            id: 'default',
-            name: 'DeepSeek',
-            provider: 'deepseek',
-            apiKey: process.env.DEEPSEEK_API_KEY || 'sk-216abaae29064182af776144aed845e3',
-            baseUrl: 'https://api.deepseek.com/v1',
-            models: ['deepseek-chat'],
-            isActive: true,
+        const apiKey = 'sk-216abaae29064182af776144aed845e3';
+        const model = body.model ?? 'deepseek-chat';
+        const messages = body.messages.map(m => ({ role: m.role, content: m.content }));
+        if (body.system) {
+            messages.unshift({ role: 'system', content: body.system });
+        }
+        const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+                model,
+                messages,
+                temperature: 0.7,
+                max_tokens: 4096,
+            }),
         });
+        if (!response.ok) {
+            const errBody = await response.text();
+            throw new Error(`DeepSeek API error ${response.status}: ${errBody}`);
+        }
+        const data = await response.json();
+        const choice = data.choices?.[0];
+        return {
+            content: choice?.message?.content ?? '',
+            finishReason: choice?.finish_reason ?? 'stop',
+            usage: {
+                promptTokens: data.usage?.prompt_tokens ?? 0,
+                completionTokens: data.usage?.completion_tokens ?? 0,
+                totalTokens: data.usage?.total_tokens ?? 0,
+            },
+        };
     }
 };
 exports.AIController = AIController;
 __decorate([
     (0, common_1.Post)('chat'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
-    (0, swagger_1.ApiOperation)({ summary: 'Generate AI response' }),
+    (0, swagger_1.ApiOperation)({ summary: 'Generate AI response via DeepSeek' }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -49,6 +67,5 @@ __decorate([
 ], AIController.prototype, "chat", null);
 exports.AIController = AIController = __decorate([
     (0, swagger_1.ApiTags)('AI'),
-    (0, common_1.Controller)('ai'),
-    __metadata("design:paramtypes", [ai_service_1.AIService])
+    (0, common_1.Controller)('ai')
 ], AIController);

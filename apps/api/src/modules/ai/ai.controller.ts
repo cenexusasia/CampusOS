@@ -1,31 +1,53 @@
 import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { AIService } from './ai.service';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @ApiTags('AI')
 @Controller('ai')
 export class AIController {
-  constructor(private readonly aiService: AIService) {}
-
   @Post('chat')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Generate AI response' })
+  @ApiOperation({ summary: 'Generate AI response via DeepSeek' })
   async chat(@Body() body: { model?: string; system?: string; messages: { role: string; content: string }[] }) {
-    return this.aiService.generate(
-      {
-        model: body.model,
-        system: body.system,
-        messages: body.messages.map(m => ({ role: m.role as any, content: m.content })),
+    const apiKey = 'sk-216abaae29064182af776144aed845e3';
+    const model = body.model ?? 'deepseek-chat';
+    
+    const messages: any[] = body.messages.map(m => ({ role: m.role, content: m.content }));
+    if (body.system) {
+      messages.unshift({ role: 'system', content: body.system });
+    }
+
+    const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
       },
-      {
-        id: 'default',
-        name: 'DeepSeek',
-        provider: 'deepseek',
-        apiKey: process.env.DEEPSEEK_API_KEY || 'sk-216abaae29064182af776144aed845e3',
-        baseUrl: 'https://api.deepseek.com/v1',
-        models: ['deepseek-chat'],
-        isActive: true,
+      body: JSON.stringify({
+        model,
+        messages,
+        temperature: 0.7,
+        max_tokens: 4096,
+      }),
+    });
+
+    if (!response.ok) {
+      const errBody = await response.text();
+      throw new Error(`DeepSeek API error ${response.status}: ${errBody}`);
+    }
+
+    const data = await response.json() as any;
+    const choice = data.choices?.[0];
+
+    return {
+      content: choice?.message?.content ?? '',
+      finishReason: choice?.finish_reason ?? 'stop',
+      usage: {
+        promptTokens: data.usage?.prompt_tokens ?? 0,
+        completionTokens: data.usage?.completion_tokens ?? 0,
+        totalTokens: data.usage?.total_tokens ?? 0,
       },
-    );
+    };
   }
 }
