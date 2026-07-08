@@ -2,7 +2,7 @@
   "name": "@campusos/web",
   "version": "0.1.0",
   "private": true,
-  "description": "CampusOS Web Frontend \u2014 Next.js 15 App Router",
+  "description": "CampusOS Web Frontend — Next.js 15 App Router",
   "scripts": {
     "dev": "next dev --turbopack --port 3000",
     "build": "next build --no-lint",
@@ -20,6 +20,7 @@
     "@radix-ui/react-tooltip": "^1.1.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "cmdk": "^1.1.1",
     "framer-motion": "^11.12.0",
     "lucide-react": "^0.468.0",
     "next": "^15.1.0",

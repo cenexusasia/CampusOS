@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Sidebar } from '@/components/sidebar';
 import { Header } from '@/components/header';
 import { Footer } from '@/components/footer';
+import { CommandPalette } from '@/components/command-palette';
 
 export function PortalLayoutClient({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -25,6 +26,7 @@ export function PortalLayoutClient({ children }: { children: React.ReactNode }) 
         </main>
         <Footer />
       </div>
+      <CommandPalette />
     </div>
   );
 }

@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
 import { Search, Plus, MoreHorizontal, Users, UserPlus, ChevronDown } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
 
 interface Student {
   name: string;
@@ -94,6 +95,8 @@ export default function StudentsPage() {
     Suspended: SAMPLE_STUDENTS.filter((s) => s.status === 'Suspended').length,
   };
 
+  const hasStudents = SAMPLE_STUDENTS.length > 0;
+
   return (
     <div className="space-y-6 page-enter">
       {/* Header */}
@@ -158,150 +161,144 @@ export default function StudentsPage() {
         </div>
       </div>
 
-      {/* Table view (desktop) */}
-      <div className="hidden overflow-hidden rounded-xl border bg-card shadow-sm md:block">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b bg-muted/30">
-                {([
-                  { key: 'name' as const, label: 'Student' },
-                  { key: 'email' as const, label: 'Email' },
-                  { key: 'course' as const, label: 'Course' },
-                  { key: 'status' as const, label: 'Status' },
-                  { key: 'enrolledDate' as const, label: 'Enrolled' },
-                ]).map(({ key, label }) => (
-                  <th
-                    key={key}
-                    onClick={() => toggleSort(key)}
-                    className="cursor-pointer select-none px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
-                  >
-                    <div className="flex items-center gap-1">
-                      {label}
-                      {sortField === key && (
-                        <ChevronDown
-                          className={`h-3 w-3 transition-transform ${sortDir === 'desc' ? 'rotate-180' : ''}`}
-                        />
-                      )}
-                    </div>
-                  </th>
-                ))}
-                <th className="w-16 px-6 py-3"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={6}>
-                    <div className="flex flex-col items-center justify-center py-16">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted/50">
-                        <Users className="h-8 w-8 text-muted-foreground/40" />
-                      </div>
-                      <h3 className="mt-4 text-sm font-medium">No students found</h3>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Try adjusting your search or filter criteria.
-                      </p>
-                      <button
-                        onClick={() => { setSearch(''); setStatusFilter('All'); }}
-                        className="mt-4 text-xs font-medium text-primary hover:underline"
+      {/* Empty state when no students at all */}
+      {!hasStudents ? (
+        <EmptyState
+          icon={Users}
+          title="No students yet"
+          description="Sync from Moodle or OpenSIS to get started."
+          action={{ label: 'Add Student', onClick: () => {} }}
+        />
+      ) : (
+        <>
+          {/* Table view (desktop) */}
+          <div className="hidden overflow-hidden rounded-xl border bg-card shadow-sm md:block">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b bg-muted/30">
+                    {([
+                      { key: 'name' as const, label: 'Student' },
+                      { key: 'email' as const, label: 'Email' },
+                      { key: 'course' as const, label: 'Course' },
+                      { key: 'status' as const, label: 'Status' },
+                      { key: 'enrolledDate' as const, label: 'Enrolled' },
+                    ]).map(({ key, label }) => (
+                      <th
+                        key={key}
+                        onClick={() => toggleSort(key)}
+                        className="cursor-pointer select-none px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
                       >
-                        Clear filters
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((student) => (
-                  <tr
-                    key={student.email}
-                    className="group transition-colors hover:bg-muted/30"
-                  >
-                    <td className="px-6 py-3.5">
-                      <div className="flex items-center gap-3">
-                        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${getAvatarColor(student.name)}`}>
-                          {getInitials(student.name)}
+                        <div className="flex items-center gap-1">
+                          {label}
+                          {sortField === key && (
+                            <ChevronDown
+                              className={`h-3 w-3 transition-transform ${sortDir === 'desc' ? 'rotate-180' : ''}`}
+                            />
+                          )}
                         </div>
-                        <span className="text-sm font-medium">{student.name}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-3.5 text-sm text-muted-foreground">{student.email}</td>
-                    <td className="px-6 py-3.5">
-                      <span className="inline-flex items-center gap-1.5 text-sm">
-                        <span className={`h-1.5 w-1.5 rounded-full ${statusDot[student.status]}`} />
-                        {student.course}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3.5">
-                      <span className={statusClasses[student.status]}>{student.status}</span>
-                    </td>
-                    <td className="px-6 py-3.5 text-sm text-muted-foreground">{student.enrolledDate}</td>
-                    <td className="px-6 py-3.5 text-right">
-                      <button className="rounded-lg p-1.5 text-muted-foreground opacity-0 transition-all hover:bg-accent hover:text-foreground group-hover:opacity-100">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </button>
-                    </td>
+                      </th>
+                    ))}
+                    <th className="w-16 px-6 py-3"></th>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {filtered.length > 0 && (
-          <div className="flex items-center justify-between border-t px-6 py-3 text-xs text-muted-foreground">
-            <span>Showing {filtered.length} of {SAMPLE_STUDENTS.length} students</span>
-            <span>{filtered.length} results</span>
-          </div>
-        )}
-      </div>
-
-      {/* Card view (mobile) */}
-      <div className="space-y-3 md:hidden">
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-xl border bg-card py-16 shadow-sm">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted/50">
-              <Users className="h-8 w-8 text-muted-foreground/40" />
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan={6}>
+                        <EmptyState
+                          icon={Users}
+                          title="No students found"
+                          description="Try adjusting your search or filter criteria."
+                          action={{ label: 'Clear filters', onClick: () => { setSearch(''); setStatusFilter('All'); } }}
+                        />
+                      </td>
+                    </tr>
+                  ) : (
+                    filtered.map((student) => (
+                      <tr
+                        key={student.email}
+                        className="group transition-colors hover:bg-muted/30"
+                      >
+                        <td className="px-6 py-3.5">
+                          <div className="flex items-center gap-3">
+                            <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${getAvatarColor(student.name)}`}>
+                              {getInitials(student.name)}
+                            </div>
+                            <span className="text-sm font-medium">{student.name}</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-3.5 text-sm text-muted-foreground">{student.email}</td>
+                        <td className="px-6 py-3.5">
+                          <span className="inline-flex items-center gap-1.5 text-sm">
+                            <span className={`h-1.5 w-1.5 rounded-full ${statusDot[student.status]}`} />
+                            {student.course}
+                          </span>
+                        </td>
+                        <td className="px-6 py-3.5">
+                          <span className={statusClasses[student.status]}>{student.status}</span>
+                        </td>
+                        <td className="px-6 py-3.5 text-sm text-muted-foreground">{student.enrolledDate}</td>
+                        <td className="px-6 py-3.5 text-right">
+                          <button className="rounded-lg p-1.5 text-muted-foreground opacity-0 transition-all hover:bg-accent hover:text-foreground group-hover:opacity-100">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
-            <h3 className="mt-4 text-sm font-medium">No students found</h3>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Try adjusting your search or filter criteria.
-            </p>
-            <button
-              onClick={() => { setSearch(''); setStatusFilter('All'); }}
-              className="mt-4 text-xs font-medium text-primary hover:underline"
-            >
-              Clear filters
-            </button>
+
+            {filtered.length > 0 && (
+              <div className="flex items-center justify-between border-t px-6 py-3 text-xs text-muted-foreground">
+                <span>Showing {filtered.length} of {SAMPLE_STUDENTS.length} students</span>
+                <span>{filtered.length} results</span>
+              </div>
+            )}
           </div>
-        ) : (
-          filtered.map((student) => (
-            <div
-              key={student.email}
-              className="card-lift rounded-xl border bg-card p-4 shadow-sm"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${getAvatarColor(student.name)}`}>
-                    {getInitials(student.name)}
+
+          {/* Card view (mobile) */}
+          <div className="space-y-3 md:hidden">
+            {filtered.length === 0 ? (
+              <EmptyState
+                icon={Users}
+                title="No students found"
+                description="Try adjusting your search or filter criteria."
+                action={{ label: 'Clear filters', onClick: () => { setSearch(''); setStatusFilter('All'); } }}
+              />
+            ) : (
+              filtered.map((student) => (
+                <div
+                  key={student.email}
+                  className="card-lift rounded-xl border bg-card p-4 shadow-sm"
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-xs font-semibold ${getAvatarColor(student.name)}`}>
+                        {getInitials(student.name)}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-medium">{student.name}</h3>
+                        <p className="text-xs text-muted-foreground">{student.email}</p>
+                      </div>
+                    </div>
+                    <span className={statusClasses[student.status]}>{student.status}</span>
                   </div>
-                  <div>
-                    <h3 className="text-sm font-medium">{student.name}</h3>
-                    <p className="text-xs text-muted-foreground">{student.email}</p>
+                  <div className="mt-3 flex items-center justify-between border-t pt-3 text-xs text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5">
+                      <span className={`h-1.5 w-1.5 rounded-full ${statusDot[student.status]}`} />
+                      {student.course}
+                    </span>
+                    <span>Enrolled: {student.enrolledDate}</span>
                   </div>
                 </div>
-                <span className={statusClasses[student.status]}>{student.status}</span>
-              </div>
-              <div className="mt-3 flex items-center justify-between border-t pt-3 text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5">
-                  <span className={`h-1.5 w-1.5 rounded-full ${statusDot[student.status]}`} />
-                  {student.course}
-                </span>
-                <span>Enrolled: {student.enrolledDate}</span>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+              ))
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 }
