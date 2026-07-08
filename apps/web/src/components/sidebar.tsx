@@ -16,7 +16,6 @@ import {
   MoreHorizontal,
   ChevronLeft,
   ChevronRight,
-  Menu,
   X,
 } from 'lucide-react';
 import { useMediaQuery } from '@/hooks/useMediaQuery';
@@ -33,7 +32,6 @@ const navigation = [
 ];
 
 const mainLinks = navigation.slice(0, 4);
-const moreLinks = navigation.slice(4);
 
 interface SidebarProps {
   collapsed: boolean;
