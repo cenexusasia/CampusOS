@@ -15,7 +15,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AIController = void 0;
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
-const jwt_auth_guard_1 = require("./guards/jwt-auth.guard");
 let AIController = class AIController {
     async chat(body) {
         const apiKey = 'sk-216abaae29064182af776144aed845e3';
@@ -57,7 +56,6 @@ let AIController = class AIController {
 exports.AIController = AIController;
 __decorate([
     (0, common_1.Post)('chat'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.HttpCode)(common_1.HttpStatus.OK),
     (0, swagger_1.ApiOperation)({ summary: 'Generate AI response via DeepSeek' }),
     __param(0, (0, common_1.Body)()),

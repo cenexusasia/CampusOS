@@ -93,8 +93,8 @@ export class AIService {
           throw new Error(`DeepSeek API error ${response.status}: ${errBody}`);
         }
 
-        const data = await response.json();
-        const choice = data.choices?.[0];
+        const data: any = await response.json();
+        const choice: any = data.choices?.[0];
         const finishReason = choice?.finish_reason ?? 'stop';
 
         return {

@@ -1,12 +1,10 @@
-import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @ApiTags('AI')
 @Controller('ai')
 export class AIController {
   @Post('chat')
-  @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Generate AI response via DeepSeek' })
   async chat(@Body() body: { model?: string; system?: string; messages: { role: string; content: string }[] }) {
