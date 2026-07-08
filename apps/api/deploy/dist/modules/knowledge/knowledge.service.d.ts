@@ -9,4 +9,6 @@ export declare class KnowledgeService {
     delete(tenantId: string, documentId: string): Promise<{
         id: string;
     }>;
+    private extractText;
+    private chunkText;
 }

@@ -50,6 +50,8 @@ const shared_1 = require("../../shared");
 const fs = __importStar(require("node:fs"));
 const path = __importStar(require("node:path"));
 const uuid_1 = require("uuid");
+const pdf_parse_1 = require("pdf-parse");
+const mammoth = __importStar(require("mammoth"));
 let KnowledgeService = KnowledgeService_1 = class KnowledgeService {
     prisma;
     logger = new common_1.Logger(KnowledgeService_1.name);
@@ -87,7 +89,36 @@ let KnowledgeService = KnowledgeService_1 = class KnowledgeService {
             },
         });
         this.logger.log(`Document uploaded: ${document.id} (${file.originalname})`);
-        return document;
+        try {
+            const text = await this.extractText(file.buffer, file.mimetype);
+            const chunks = this.chunkText(text, 1000);
+            if (chunks.length > 0) {
+                await this.prisma.documentChunk.createMany({
+                    data: chunks.map((content, index) => ({
+                        documentId: document.id,
+                        content,
+                        chunkIndex: index,
+                        metadata: {},
+                    })),
+                });
+                this.logger.log(`Created ${chunks.length} chunks for document ${document.id}`);
+            }
+            await this.prisma.document.update({
+                where: { id: document.id },
+                data: { status: 'READY' },
+            });
+        }
+        catch (error) {
+            this.logger.error(`Text extraction failed for document ${document.id}: ${error.message}`);
+            await this.prisma.document.update({
+                where: { id: document.id },
+                data: { status: 'FAILED' },
+            });
+        }
+        return this.prisma.document.findUnique({
+            where: { id: document.id },
+            include: { _count: { select: { chunks: true } } },
+        });
     }
     async search(tenantId, query) {
         if (!query || query.trim().length === 0) {
@@ -154,6 +185,88 @@ let KnowledgeService = KnowledgeService_1 = class KnowledgeService {
         });
         this.logger.log(`Document deleted: ${documentId}`);
         return { id: documentId };
+    }
+    async extractText(buffer, mimeType) {
+        switch (mimeType) {
+            case 'application/pdf': {
+                const parser = new pdf_parse_1.PDFParse(buffer);
+                const result = await parser.getText();
+                return result.text;
+            }
+            case 'text/plain':
+            case 'text/markdown':
+                return buffer.toString('utf-8');
+            case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': {
+                const result = await mammoth.extractRawText({ buffer });
+                return result.value;
+            }
+            default:
+                this.logger.warn(`Unsupported mime type: ${mimeType}, falling back to raw text`);
+                return buffer.toString('utf-8');
+        }
+    }
+    chunkText(text, maxChunkSize) {
+        const normalized = text.replace(/\r\n/g, '\n').trim();
+        if (!normalized)
+            return [];
+        const paragraphs = normalized.split(/\n\s*\n/);
+        const chunks = [];
+        let currentChunk = '';
+        for (const paragraph of paragraphs) {
+            const trimmedParagraph = paragraph.trim();
+            if (!trimmedParagraph)
+                continue;
+            if (trimmedParagraph.length > maxChunkSize) {
+                if (currentChunk) {
+                    chunks.push(currentChunk.trim());
+                    currentChunk = '';
+                }
+                const sentences = trimmedParagraph.match(/[^.!?\n]+[.!?]*\s*/g) || [
+                    trimmedParagraph,
+                ];
+                let sentenceChunk = '';
+                for (const sentence of sentences) {
+                    if ((sentenceChunk + sentence).length > maxChunkSize) {
+                        if (sentenceChunk) {
+                            chunks.push(sentenceChunk.trim());
+                            sentenceChunk = sentence;
+                        }
+                        else {
+                            chunks.push(sentence.trim());
+                            sentenceChunk = '';
+                        }
+                    }
+                    else {
+                        sentenceChunk += sentence;
+                    }
+                }
+                if (sentenceChunk) {
+                    chunks.push(sentenceChunk.trim());
+                }
+                continue;
+            }
+            const separator = currentChunk ? '\n\n' : '';
+            const candidate = currentChunk + separator + trimmedParagraph;
+            if (candidate.length <= maxChunkSize) {
+                currentChunk = candidate;
+            }
+            else {
+                if (currentChunk) {
+                    chunks.push(currentChunk.trim());
+                    const overlap = currentChunk.length > 50
+                        ? currentChunk.slice(-50)
+                        : currentChunk;
+                    currentChunk = overlap + '\n\n' + trimmedParagraph;
+                }
+                else {
+                    currentChunk = trimmedParagraph;
+                }
+            }
+        }
+        if (currentChunk) {
+            chunks.push(currentChunk.trim());
+        }
+        return chunks;
     }
 };
 exports.KnowledgeService = KnowledgeService;
