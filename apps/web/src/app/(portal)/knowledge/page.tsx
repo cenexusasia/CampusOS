@@ -166,7 +166,7 @@ export default function KnowledgePage() {
               Drag & drop PDF, DOCX, TXT, MD, or CSV files, or click to browse.
             </p>
           </div>
-          <label className="btn-primary text-xs">
+          <label className="btn-primary text-xs touch-target w-full sm:w-auto">
             {isUploading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />

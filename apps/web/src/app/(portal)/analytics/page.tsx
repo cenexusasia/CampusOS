@@ -232,16 +232,16 @@ export default function AnalyticsPage() {
             Institution-wide metrics, trends, and data-driven insights.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 sm:flex-row-reverse">
           <button
             onClick={fetchData}
             disabled={isLoading}
-            className="inline-flex items-center gap-2 rounded-lg border bg-card px-3.5 py-1.5 text-xs font-medium shadow-sm transition-all hover:border-primary/30 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg border bg-card px-3.5 py-1.5 text-xs font-medium shadow-sm transition-all hover:border-primary/30 disabled:opacity-50 shrink-0"
           >
             <RefreshCw className={isLoading ? 'animate-spin' : ''} style={{ height: 12, width: 12 }} />
-            Refresh
+            <span className="hidden sm:inline">Refresh</span>
           </button>
-          <div className="flex items-center gap-1.5 rounded-xl border bg-card p-1 shadow-sm">
+          <div className="flex items-center gap-1.5 rounded-xl border bg-card p-1 shadow-sm overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {([
               { key: '7d' as const, label: '7 days' },
               { key: '30d' as const, label: '30 days' },

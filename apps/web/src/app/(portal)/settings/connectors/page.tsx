@@ -293,13 +293,13 @@ export default function ConnectorsPage() {
 
           {/* Actions */}
           {!isComingSoon && (
-            <div className="mt-4 flex flex-wrap items-center gap-2">
+            <div className="mt-4 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2">
               {isConnected && connector && (
                 <>
                   <button
                     onClick={() => handleSync(connector)}
                     disabled={isSyncing}
-                    className="btn-primary flex-1 sm:flex-none text-xs py-2 px-3"
+                    className="btn-primary text-xs py-2.5 px-3"
                   >
                     {isSyncing ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -310,7 +310,7 @@ export default function ConnectorsPage() {
                   </button>
                   <button
                     onClick={() => handleDisconnect(connector)}
-                    className="btn-secondary flex-1 sm:flex-none text-xs py-2 px-3"
+                    className="btn-secondary text-xs py-2.5 px-3"
                   >
                     <Unplug className="h-3.5 w-3.5" />
                     Disconnect
@@ -320,7 +320,7 @@ export default function ConnectorsPage() {
               {!isConnected && !isComingSoon && (
                 <button
                   onClick={() => handleConnect(providerKey)}
-                  className="btn-primary text-xs py-2 px-3"
+                  className="btn-primary text-xs py-2.5 px-3"
                 >
                   <Plug className="h-3.5 w-3.5" />
                   Connect
@@ -329,7 +329,7 @@ export default function ConnectorsPage() {
               {connector?.status === 'error' && (
                 <button
                   onClick={() => handleDisconnect(connector)}
-                  className="btn-secondary text-xs py-2 px-3"
+                  className="btn-secondary text-xs py-2.5 px-3"
                 >
                   <Unplug className="h-3.5 w-3.5" />
                   Remove

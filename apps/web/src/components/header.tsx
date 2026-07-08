@@ -1,11 +1,16 @@
 'use client';
 
-import { Bell, Search, LogOut, Settings, User, ChevronDown, X } from 'lucide-react';
+import { Bell, Search, LogOut, Settings, User, ChevronDown, X, Menu } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { signOut } from 'next-auth/react';
+import { cn } from '@/lib/utils';
 
-export function Header() {
+interface HeaderProps {
+  onMenuToggle?: () => void;
+}
+
+export function Header({ onMenuToggle }: HeaderProps) {
   const { user } = useAuth();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,11 +67,20 @@ export function Header() {
   }, []);
 
   return (
-    <header className="flex h-14 items-center justify-between border-b bg-background px-4 md:px-6">
-      {/* Left: Search */}
-      <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b bg-background/95 backdrop-blur-lg px-3 md:px-6">
+      {/* Left: Menu toggle on mobile + Search */}
+      <div className="flex items-center gap-2 md:gap-4">
+        {/* Hamburger — visible on mobile only */}
+        <button
+          onClick={onMenuToggle}
+          className="touch-target inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground md:hidden"
+          aria-label="Toggle menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
         {searchOpen ? (
-          <div className="flex items-center gap-2 rounded-lg border bg-muted/50 px-3 py-1.5 shadow-sm scale-in">
+          <div className="flex items-center gap-2 rounded-lg border bg-muted/50 px-3 py-1.5 shadow-sm scale-in flex-1 md:flex-none">
             <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
             <input
               ref={searchInputRef}
@@ -74,7 +88,7 @@ export function Header() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search anything..."
-              className="w-48 md:w-64 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+              className="w-full md:w-64 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               onKeyDown={(e) => {
                 if (e.key === 'Escape') {
                   setSearchOpen(false);
@@ -98,7 +112,7 @@ export function Header() {
         ) : (
           <button
             onClick={() => setSearchOpen(true)}
-            className="flex items-center gap-2 rounded-lg border border-transparent px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-border hover:bg-accent hover:text-foreground"
+            className="touch-target flex items-center gap-2 rounded-lg border border-transparent px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-border hover:bg-accent hover:text-foreground"
           >
             <Search className="h-4 w-4" />
             <span className="hidden sm:inline">Search...</span>
@@ -110,7 +124,7 @@ export function Header() {
       </div>
 
       {/* Right: Notifications + User */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-0.5 md:gap-1">
         {/* Notifications */}
         <div ref={notifRef} className="relative">
           <button
@@ -119,18 +133,19 @@ export function Header() {
               setDropdownOpen(false);
             }}
             className={cn(
-              'relative rounded-lg p-2 transition-colors',
+              'touch-target relative rounded-lg p-2 transition-colors',
               notifOpen
                 ? 'bg-accent text-foreground'
                 : 'text-muted-foreground hover:bg-accent hover:text-foreground',
             )}
+            aria-label="Notifications"
           >
             <Bell className="h-4 w-4" />
             <span className="absolute right-1.5 top-1.5 flex h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
           </button>
 
           {notifOpen && (
-            <div className="absolute right-0 top-full mt-2 w-80 rounded-lg border bg-card shadow-lg scale-in z-50">
+            <div className="absolute right-0 top-full mt-2 w-72 sm:w-80 rounded-lg border bg-card shadow-lg scale-in z-50">
               <div className="flex items-center justify-between border-b px-4 py-3">
                 <h3 className="text-sm font-semibold">Notifications</h3>
                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
@@ -170,11 +185,12 @@ export function Header() {
               setNotifOpen(false);
             }}
             className={cn(
-              'flex items-center gap-2 rounded-lg p-1.5 transition-colors',
+              'touch-target flex items-center gap-2 rounded-lg p-1.5 transition-colors',
               dropdownOpen
                 ? 'bg-accent text-foreground'
                 : 'text-muted-foreground hover:bg-accent hover:text-foreground',
             )}
+            aria-label="User menu"
           >
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
               {userInitials}
@@ -197,14 +213,14 @@ export function Header() {
               <div className="py-1">
                 <button
                   onClick={() => setDropdownOpen(false)}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+                  className="touch-target flex w-full items-center gap-2 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
                 >
                   <User className="h-4 w-4 text-muted-foreground" />
                   Profile
                 </button>
                 <button
                   onClick={() => setDropdownOpen(false)}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+                  className="touch-target flex w-full items-center gap-2 px-4 py-2 text-sm text-foreground transition-colors hover:bg-muted"
                 >
                   <Settings className="h-4 w-4 text-muted-foreground" />
                   Settings
@@ -213,7 +229,7 @@ export function Header() {
               <div className="border-t py-1">
                 <button
                   onClick={() => signOut({ callbackUrl: '/login' })}
-                  className="flex w-full items-center gap-2 px-4 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
+                  className="touch-target flex w-full items-center gap-2 px-4 py-2 text-sm text-destructive transition-colors hover:bg-destructive/10"
                 >
                   <LogOut className="h-4 w-4" />
                   Sign out
@@ -225,8 +241,4 @@ export function Header() {
       </div>
     </header>
   );
-}
-
-function cn(...classes: (string | boolean | undefined | null)[]): string {
-  return classes.filter(Boolean).join(' ');
 }

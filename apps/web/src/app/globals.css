@@ -189,6 +189,7 @@
   .pl-safe { padding-left: env(safe-area-inset-left, 0px); }
   .pr-safe { padding-right: env(safe-area-inset-right, 0px); }
   .mb-safe { margin-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-area-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
 
   /* Scroll anchor offset for bottom tab bar */
   .scroll-mb-tab { scroll-margin-bottom: 5rem; }

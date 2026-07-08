@@ -90,7 +90,7 @@ function LoginForm() {
               required
               disabled={isLoading}
               autoComplete="email"
-              className="input-modern"
+              className="input-modern touch-target"
             />
           </div>
 

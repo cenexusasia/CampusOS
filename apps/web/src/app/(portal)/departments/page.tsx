@@ -27,6 +27,7 @@ const totalCourses = SAMPLE_DEPARTMENTS.reduce((sum, d) => sum + d.courseCount, 
 
 const maxFaculty = Math.max(...SAMPLE_DEPARTMENTS.map((d) => d.facultyCount));
 const maxBudget = Math.max(...SAMPLE_DEPARTMENTS.map((d) => parseFloat(d.budget.replace(/[$,]/g, ''))));
+const maxCourses = Math.max(...SAMPLE_DEPARTMENTS.map((d) => d.courseCount));
 
 export default function DepartmentsPage() {
   return (
@@ -39,92 +40,93 @@ export default function DepartmentsPage() {
             Organize and manage academic departments and their resources.
           </p>
         </div>
-        <button className="btn-primary">
+        <button className="btn-primary touch-target">
           <Plus className="h-4 w-4" />
           Add Department
         </button>
       </div>
 
-      {/* Aggregate metric cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border bg-card p-5 shadow-sm">
+      {/* Aggregate metric cards — stacked on mobile */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="rounded-xl border bg-card p-4 sm:p-5 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
               <Building2 className="h-5 w-5" />
             </div>
-            <div>
-              <p className="text-2xl font-bold">{SAMPLE_DEPARTMENTS.length}</p>
-              <p className="text-xs text-muted-foreground">Departments</p>
+            <div className="min-w-0">
+              <p className="text-xl sm:text-2xl font-bold">{SAMPLE_DEPARTMENTS.length}</p>
+              <p className="text-xs text-muted-foreground truncate">Departments</p>
             </div>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-5 shadow-sm">
+        <div className="rounded-xl border bg-card p-4 sm:p-5 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400">
               <GraduationCap className="h-5 w-5" />
             </div>
-            <div>
-              <p className="text-2xl font-bold">{totalFaculty}</p>
-              <p className="text-xs text-muted-foreground">Faculty Members</p>
+            <div className="min-w-0">
+              <p className="text-xl sm:text-2xl font-bold">{totalFaculty}</p>
+              <p className="text-xs text-muted-foreground truncate">Faculty Members</p>
             </div>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-5 shadow-sm">
+        <div className="rounded-xl border bg-card p-4 sm:p-5 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
               <BookOpen className="h-5 w-5" />
             </div>
-            <div>
-              <p className="text-2xl font-bold">{totalCourses}</p>
-              <p className="text-xs text-muted-foreground">Courses</p>
+            <div className="min-w-0">
+              <p className="text-xl sm:text-2xl font-bold">{totalCourses}</p>
+              <p className="text-xs text-muted-foreground truncate">Courses</p>
             </div>
           </div>
         </div>
-        <div className="rounded-xl border bg-card p-5 shadow-sm">
+        <div className="rounded-xl border bg-card p-4 sm:p-5 shadow-sm">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
               <DollarSign className="h-5 w-5" />
             </div>
-            <div>
-              <p className="text-2xl font-bold">${(totalBudget / 1000000).toFixed(1)}M</p>
-              <p className="text-xs text-muted-foreground">Total Budget</p>
+            <div className="min-w-0">
+              <p className="text-xl sm:text-2xl font-bold">${(totalBudget / 1000000).toFixed(1)}M</p>
+              <p className="text-xs text-muted-foreground truncate">Total Budget</p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Department cards with progress bars */}
-      <div className="grid gap-4 lg:grid-cols-2">
+      {/* Department cards with progress bars — mobile-first responsive grid */}
+      <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
         {SAMPLE_DEPARTMENTS.map((dept) => {
           const budgetValue = parseFloat(dept.budget.replace(/[$,]/g, ''));
           const facultyPct = (dept.facultyCount / maxFaculty) * 100;
           const budgetPct = (budgetValue / maxBudget) * 100;
+          const coursePct = (dept.courseCount / maxCourses) * 100;
 
           return (
             <div
               key={dept.name}
-              className="card-lift rounded-xl border bg-card p-5 shadow-sm"
+              className="card-lift rounded-xl border bg-card p-4 sm:p-5 shadow-sm"
             >
               {/* Header */}
               <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5">
                     <Building2 className="h-5 w-5 text-primary" />
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-sm">{dept.name}</h3>
-                    <p className="text-xs text-muted-foreground">Head: {dept.head}</p>
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-sm truncate">{dept.name}</h3>
+                    <p className="text-xs text-muted-foreground truncate">Head: {dept.head}</p>
                   </div>
                 </div>
-                <button className="rounded-lg p-1 text-muted-foreground hover:bg-accent hover:text-foreground">
+                <button className="touch-target rounded-lg p-1 text-muted-foreground hover:bg-accent hover:text-foreground shrink-0">
                   <MoreHorizontal className="h-4 w-4" />
                 </button>
               </div>
 
               {/* Progress bars */}
-              <div className="mt-5 space-y-4">
+              <div className="mt-4 space-y-3 sm:space-y-4">
                 <div>
-                  <div className="mb-1.5 flex items-center justify-between text-xs">
+                  <div className="mb-1 flex items-center justify-between text-xs">
                     <span className="flex items-center gap-1.5 text-muted-foreground">
                       <GraduationCap className="h-3 w-3" />
                       Faculty
@@ -139,7 +141,7 @@ export default function DepartmentsPage() {
                   </div>
                 </div>
                 <div>
-                  <div className="mb-1.5 flex items-center justify-between text-xs">
+                  <div className="mb-1 flex items-center justify-between text-xs">
                     <span className="flex items-center gap-1.5 text-muted-foreground">
                       <BookOpen className="h-3 w-3" />
                       Courses
@@ -149,17 +151,17 @@ export default function DepartmentsPage() {
                   <div className="h-2 overflow-hidden rounded-full bg-muted">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-500"
-                      style={{ width: `${(dept.courseCount / Math.max(...SAMPLE_DEPARTMENTS.map((d) => d.courseCount))) * 100}%` }}
+                      style={{ width: `${coursePct}%` }}
                     />
                   </div>
                 </div>
                 <div>
-                  <div className="mb-1.5 flex items-center justify-between text-xs">
+                  <div className="mb-1 flex items-center justify-between text-xs">
                     <span className="flex items-center gap-1.5 text-muted-foreground">
                       <DollarSign className="h-3 w-3" />
                       Budget
                     </span>
-                    <span className="font-mono font-medium">{dept.budget}</span>
+                    <span className="font-mono font-medium text-xs sm:text-sm">{dept.budget}</span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-muted">
                     <div
@@ -174,8 +176,8 @@ export default function DepartmentsPage() {
         })}
       </div>
 
-      {/* Summary table */}
-      <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+      {/* Summary table — desktop only */}
+      <div className="hidden md:block overflow-hidden rounded-xl border bg-card shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
@@ -204,7 +206,7 @@ export default function DepartmentsPage() {
                   <td className="px-6 py-3.5 text-sm">{dept.courseCount}</td>
                   <td className="px-6 py-3.5 font-mono text-sm font-medium">{dept.budget}</td>
                   <td className="px-6 py-3.5 text-right">
-                    <button className="rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground">
+                    <button className="touch-target rounded-lg p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground">
                       <MoreHorizontal className="h-4 w-4" />
                     </button>
                   </td>

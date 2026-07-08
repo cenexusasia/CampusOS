@@ -94,11 +94,54 @@ export function DashboardClient() {
 
   if (isLoading) {
     return (
-      <div className="flex h-full items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Loading your dashboard...</p>
+      <div className="space-y-6 page-enter">
+        {/* Skeleton welcome card */}
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary/80 via-primary/70 to-violet-600/80 p-6 md:p-8">
+          <div className="relative z-10">
+            <div className="h-8 w-64 skeleton rounded-md" />
+            <div className="mt-3 h-4 w-96 skeleton rounded-md" />
+            <div className="mt-2 h-4 w-80 skeleton rounded-md" />
+          </div>
         </div>
+
+        {/* Skeleton stat cards */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="rounded-xl border bg-card p-5">
+              <div className="flex items-start justify-between">
+                <div className="h-10 w-10 skeleton rounded-xl" />
+                <div className="h-4 w-12 skeleton rounded-md" />
+              </div>
+              <div className="mt-4 space-y-2">
+                <div className="h-8 w-20 skeleton rounded-md" />
+                <div className="h-4 w-24 skeleton rounded-md" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Skeleton overview + system status */}
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="rounded-xl border bg-card p-5 shadow-sm lg:col-span-2">
+            <div className="h-4 w-32 skeleton rounded-md" />
+            <div className="mt-4 space-y-3">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-16 skeleton rounded-lg" />
+              ))}
+            </div>
+          </div>
+          <div className="rounded-xl border bg-card p-5 shadow-sm">
+            <div className="h-4 w-28 skeleton rounded-md" />
+            <div className="mt-4 space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="h-5 skeleton rounded-md" />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton AI chat area */}
+        <div className="h-[600px] skeleton rounded-xl" />
       </div>
     );
   }
@@ -201,11 +244,19 @@ export function DashboardClient() {
 
       {/* Stats grid */}
       {isDataLoading ? (
-        <div className="flex items-center justify-center rounded-xl border bg-card py-12">
-          <div className="flex flex-col items-center gap-3">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Loading dashboard data...</p>
-          </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className="rounded-xl border bg-card p-5">
+              <div className="flex items-start justify-between">
+                <div className="h-10 w-10 skeleton rounded-xl" />
+                <div className="h-4 w-12 skeleton rounded-md" />
+              </div>
+              <div className="mt-4 space-y-2">
+                <div className="h-8 w-20 skeleton rounded-md" />
+                <div className="h-4 w-24 skeleton rounded-md" />
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <>
