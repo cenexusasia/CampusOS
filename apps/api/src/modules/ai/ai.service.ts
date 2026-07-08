@@ -69,8 +69,9 @@ export class AIService {
         break;
       }
       case 'deepseek': {
-        const { createOpenAI } = await import('@ai-sdk/openai');
-        const client = createOpenAI({
+        const { createOpenAICompatible } = await import('@ai-sdk/openai-compatible');
+        const client = createOpenAICompatible({
+          name: 'deepseek',
           baseURL: config.baseUrl ?? 'https://api.deepseek.com/v1',
           apiKey: config.apiKey,
         });
