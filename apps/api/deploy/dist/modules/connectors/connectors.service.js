@@ -13,11 +13,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConnectorsService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
+const connectors_registry_1 = require("./connectors.registry");
 let ConnectorsService = ConnectorsService_1 = class ConnectorsService {
     prisma;
+    registry;
     logger = new common_1.Logger(ConnectorsService_1.name);
-    constructor(prisma) {
+    constructor(prisma, registry) {
         this.prisma = prisma;
+        this.registry = registry;
     }
     async listByTenant(tenantId) {
         this.logger.log(`Listing connectors for tenant: ${tenantId}`);
@@ -33,6 +36,23 @@ let ConnectorsService = ConnectorsService_1 = class ConnectorsService {
             lastSyncAt: connector.lastSync,
             config: this.stripSecrets(connector.config),
         }));
+    }
+    async getConnectorStatuses(tenantId) {
+        const plugins = this.registry.getAll();
+        const results = [];
+        for (const plugin of plugins) {
+            try {
+                const statuses = await plugin.list(tenantId);
+                results.push(...statuses);
+            }
+            catch (error) {
+                this.logger.error(`Failed to list ${plugin.provider} connections: ${error}`);
+            }
+        }
+        return results;
+    }
+    getConnector(provider) {
+        return this.registry.get(provider);
     }
     stripSecrets(config) {
         if (!config || typeof config !== 'object') {
@@ -57,5 +77,6 @@ let ConnectorsService = ConnectorsService_1 = class ConnectorsService {
 exports.ConnectorsService = ConnectorsService;
 exports.ConnectorsService = ConnectorsService = ConnectorsService_1 = __decorate([
     (0, common_1.Injectable)(),
-    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService,
+        connectors_registry_1.ConnectorRegistry])
 ], ConnectorsService);

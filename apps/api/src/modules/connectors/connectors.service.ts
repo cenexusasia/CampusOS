@@ -1,5 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import { ConnectorRegistry } from './connectors.registry';
+import type { ConnectorPlugin, ConnectorStatus } from './connector.interface';
 import { Connector } from '@prisma/client';
 
 export interface ConnectorListItem {
@@ -15,12 +17,11 @@ export interface ConnectorListItem {
 export class ConnectorsService {
   private readonly logger = new Logger(ConnectorsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly registry: ConnectorRegistry,
+  ) {}
 
-  /**
-   * List all connectors configured for a given tenant.
-   * Strips sensitive fields from config before returning.
-   */
   async listByTenant(tenantId: string): Promise<ConnectorListItem[]> {
     this.logger.log(`Listing connectors for tenant: ${tenantId}`);
 
@@ -39,9 +40,26 @@ export class ConnectorsService {
     }));
   }
 
-  /**
-   * Remove sensitive fields (apiKey, secret, token, password) from config.
-   */
+  async getConnectorStatuses(tenantId: string): Promise<ConnectorStatus[]> {
+    const plugins = this.registry.getAll();
+    const results: ConnectorStatus[] = [];
+
+    for (const plugin of plugins) {
+      try {
+        const statuses = await plugin.list(tenantId);
+        results.push(...statuses);
+      } catch (error) {
+        this.logger.error(`Failed to list ${plugin.provider} connections: ${error}`);
+      }
+    }
+
+    return results;
+  }
+
+  getConnector(provider: string): ConnectorPlugin | undefined {
+    return this.registry.get(provider);
+  }
+
   private stripSecrets(config: Record<string, unknown>): Record<string, unknown> {
     if (!config || typeof config !== 'object') {
       return {};

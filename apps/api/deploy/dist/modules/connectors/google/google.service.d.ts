@@ -1,3 +1,4 @@
+import type { ConnectorPlugin, ConnectionResult, SyncResult, ConnectorStatus } from '../connector.interface';
 export interface GoogleConfig {
     clientId: string;
     clientSecret: string;
@@ -15,7 +16,16 @@ export interface GoogleConnection {
     createdAt: Date;
     updatedAt: Date;
 }
-export declare class GoogleService {
+export declare class GoogleService implements ConnectorPlugin {
+    readonly provider = "google";
+    readonly name = "Google";
+    readonly capabilities: {
+        sync: boolean;
+        webhook: boolean;
+        oauth: boolean;
+        basicAuth: boolean;
+        apiKey: boolean;
+    };
     private readonly logger;
     private readonly defaultScopes;
     getAuthUrl(config: GoogleConfig): string;
@@ -24,6 +34,14 @@ export declare class GoogleService {
         refreshToken: string;
         expiresIn: number;
     }>;
+    connect(config: GoogleConfig & {
+        tenantId?: string;
+    }, tenantId?: string): Promise<ConnectionResult>;
     listConnections(tenantId: string): Promise<GoogleConnection[]>;
     disconnect(connectionId: string): Promise<void>;
+    sync(connectionId: string, _options?: {
+        force?: boolean;
+        type?: string;
+    }): Promise<SyncResult>;
+    list(tenantId: string): Promise<ConnectorStatus[]>;
 }

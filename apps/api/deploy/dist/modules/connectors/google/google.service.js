@@ -10,37 +10,71 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GoogleService = void 0;
 const common_1 = require("@nestjs/common");
 let GoogleService = GoogleService_1 = class GoogleService {
+    provider = "google";
+    name = "Google";
+    capabilities = {
+        sync: true,
+        webhook: false,
+        oauth: true,
+        basicAuth: false,
+        apiKey: false,
+    };
     logger = new common_1.Logger(GoogleService_1.name);
     defaultScopes = [
-        'https://www.googleapis.com/auth/classroom.courses.readonly',
-        'https://www.googleapis.com/auth/classroom.rosters.readonly',
-        'https://www.googleapis.com/auth/classroom.profile.emails',
+        "https://www.googleapis.com/auth/classroom.courses.readonly",
+        "https://www.googleapis.com/auth/classroom.rosters.readonly",
+        "https://www.googleapis.com/auth/classroom.profile.emails",
     ];
     getAuthUrl(config) {
         const params = new URLSearchParams({
             client_id: config.clientId,
             redirect_uri: config.redirectUri,
-            response_type: 'code',
-            scope: (config.scopes ?? this.defaultScopes).join(' '),
-            access_type: 'offline',
-            prompt: 'consent',
+            response_type: "code",
+            scope: (config.scopes ?? this.defaultScopes).join(" "),
+            access_type: "offline",
+            prompt: "consent",
         });
-        return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+        return "https://accounts.google.com/o/oauth2/v2/auth?" + params.toString();
     }
     async exchangeCode(code, config) {
-        this.logger.log(`Exchanging auth code for tenant using client ID: ${config.clientId}`);
+        this.logger.log("Exchanging auth code for tenant using client ID: " + config.clientId);
         return {
-            accessToken: 'placeholder_access_token',
-            refreshToken: 'placeholder_refresh_token',
+            accessToken: "placeholder_access_token",
+            refreshToken: "placeholder_refresh_token",
             expiresIn: 3600,
         };
     }
+    async connect(config, tenantId) {
+        const resolvedTenantId = tenantId ?? config.tenantId;
+        this.logger.log("Google connect initiated for tenant: " + resolvedTenantId);
+        const authUrl = this.getAuthUrl(config);
+        return {
+            success: true,
+            connectionId: "google-oauth-" + resolvedTenantId + "-" + Date.now(),
+            siteInfo: { authUrl },
+        };
+    }
     async listConnections(tenantId) {
-        this.logger.log(`Listing Google connections for tenant: ${tenantId}`);
+        this.logger.log("Listing Google connections for tenant: " + tenantId);
         return [];
     }
     async disconnect(connectionId) {
-        this.logger.log(`Disconnecting Google connection: ${connectionId}`);
+        this.logger.log("Disconnecting Google connection: " + connectionId);
+    }
+    async sync(connectionId, _options) {
+        this.logger.log("Syncing Google Classroom connection: " + connectionId);
+        return { success: true, coursesSynced: 0, usersSynced: 0 };
+    }
+    async list(tenantId) {
+        const connections = await this.listConnections(tenantId);
+        return connections.map((c) => ({
+            id: c.id,
+            provider: "google",
+            name: "Google - " + c.email,
+            status: c.isActive ? "connected" : "disconnected",
+            lastSyncAt: null,
+            config: { email: c.email },
+        }));
     }
 };
 exports.GoogleService = GoogleService;
