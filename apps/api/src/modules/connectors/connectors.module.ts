@@ -1,4 +1,4 @@
-import { Module, OnModuleInit, Logger } from '@nestjs/common';
+import { Module, OnModuleInit, Logger, Optional } from '@nestjs/common';
 import { GoogleModule } from './google/google.module';
 import { MoodleModule } from './moodle/moodle.module';
 import { OpenSISModule } from './opensis/opensis.module';
@@ -10,6 +10,7 @@ import { MoodleService } from './moodle/moodle.service';
 import { OpenSISService } from './opensis/opensis.service';
 import { GoogleService } from './google/google.service';
 import { ERPNextService } from './erpnext/erpnext.service';
+import type { ConnectorPlugin } from './connector.interface';
 
 @Module({
   imports: [GoogleModule, MoodleModule, OpenSISModule, ERPNextModule],
@@ -23,16 +24,32 @@ export class ConnectorsModule implements OnModuleInit {
   constructor(
     private readonly registry: ConnectorRegistry,
     private readonly moodleService: MoodleService,
-    private readonly openSISService: OpenSISService,
-    private readonly googleService: GoogleService,
-    private readonly erpnextService: ERPNextService,
+    @Optional() private readonly openSISService?: OpenSISService,
+    @Optional() private readonly googleService?: GoogleService,
+    @Optional() private readonly erpnextService?: ERPNextService,
   ) {}
 
   onModuleInit(): void {
-    this.registry.register(this.moodleService);
-    this.registry.register(this.openSISService);
-    this.registry.register(this.googleService);
-    this.registry.register(this.erpnextService);
-    this.logger.log('All connectors registered in the ConnectorRegistry');
+    const services: unknown[] = [
+      this.moodleService,
+      this.openSISService,
+      this.googleService,
+      this.erpnextService,
+    ];
+
+    const names = ['Moodle', 'OpenSIS', 'Google', 'ERPNext'];
+    let registered = 0;
+
+    for (let i = 0; i < services.length; i++) {
+      const service = services[i];
+      const name = names[i];
+      if (service && typeof (service as any).provider === 'string') {
+        this.registry.register(service as ConnectorPlugin);
+        registered++;
+      } else {
+        this.logger.warn(`Skipping connector registration for ${name}: service or provider missing`);
+      }
+    }
+    this.logger.log(`Registered ${registered}/${services.length} connectors in the ConnectorRegistry`);
   }
 }

@@ -7,10 +7,10 @@ import { ERPNextService } from './erpnext/erpnext.service';
 export declare class ConnectorsModule implements OnModuleInit {
     private readonly registry;
     private readonly moodleService;
-    private readonly openSISService;
-    private readonly googleService;
-    private readonly erpnextService;
+    private readonly openSISService?;
+    private readonly googleService?;
+    private readonly erpnextService?;
     private readonly logger;
-    constructor(registry: ConnectorRegistry, moodleService: MoodleService, openSISService: OpenSISService, googleService: GoogleService, erpnextService: ERPNextService);
+    constructor(registry: ConnectorRegistry, moodleService: MoodleService, openSISService?: OpenSISService | undefined, googleService?: GoogleService | undefined, erpnextService?: ERPNextService | undefined);
     onModuleInit(): void;
 }

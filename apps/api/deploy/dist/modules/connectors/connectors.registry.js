@@ -13,6 +13,10 @@ let ConnectorRegistry = ConnectorRegistry_1 = class ConnectorRegistry {
     logger = new common_1.Logger(ConnectorRegistry_1.name);
     connectors = new Map();
     register(plugin) {
+        if (!plugin || !plugin.provider) {
+            this.logger.warn('Attempted to register connector with missing provider — skipping');
+            return;
+        }
         const key = plugin.provider.toLowerCase();
         if (this.connectors.has(key)) {
             this.logger.warn(`Overwriting existing connector registration for provider: ${plugin.provider}`);

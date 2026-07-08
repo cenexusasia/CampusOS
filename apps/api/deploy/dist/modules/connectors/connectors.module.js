@@ -8,6 +8,9 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var ConnectorsModule_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConnectorsModule = void 0;
@@ -38,11 +41,26 @@ let ConnectorsModule = ConnectorsModule_1 = class ConnectorsModule {
         this.erpnextService = erpnextService;
     }
     onModuleInit() {
-        this.registry.register(this.moodleService);
-        this.registry.register(this.openSISService);
-        this.registry.register(this.googleService);
-        this.registry.register(this.erpnextService);
-        this.logger.log('All connectors registered in the ConnectorRegistry');
+        const services = [
+            this.moodleService,
+            this.openSISService,
+            this.googleService,
+            this.erpnextService,
+        ];
+        const names = ['Moodle', 'OpenSIS', 'Google', 'ERPNext'];
+        let registered = 0;
+        for (let i = 0; i < services.length; i++) {
+            const service = services[i];
+            const name = names[i];
+            if (service && typeof service.provider === 'string') {
+                this.registry.register(service);
+                registered++;
+            }
+            else {
+                this.logger.warn(`Skipping connector registration for ${name}: service or provider missing`);
+            }
+        }
+        this.logger.log(`Registered ${registered}/${services.length} connectors in the ConnectorRegistry`);
     }
 };
 exports.ConnectorsModule = ConnectorsModule;
@@ -53,6 +71,9 @@ exports.ConnectorsModule = ConnectorsModule = ConnectorsModule_1 = __decorate([
         providers: [connectors_service_1.ConnectorsService, connectors_registry_1.ConnectorRegistry],
         exports: [google_module_1.GoogleModule, moodle_module_1.MoodleModule, opensis_module_1.OpenSISModule, erpnext_module_1.ERPNextModule, connectors_service_1.ConnectorsService, connectors_registry_1.ConnectorRegistry],
     }),
+    __param(2, (0, common_1.Optional)()),
+    __param(3, (0, common_1.Optional)()),
+    __param(4, (0, common_1.Optional)()),
     __metadata("design:paramtypes", [connectors_registry_1.ConnectorRegistry,
         moodle_service_1.MoodleService,
         opensis_service_1.OpenSISService,

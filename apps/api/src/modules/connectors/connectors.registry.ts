@@ -7,6 +7,10 @@ export class ConnectorRegistry {
   private connectors = new Map<string, ConnectorPlugin>();
 
   register(plugin: ConnectorPlugin): void {
+    if (!plugin || !plugin.provider) {
+      this.logger.warn('Attempted to register connector with missing provider — skipping');
+      return;
+    }
     const key = plugin.provider.toLowerCase();
     if (this.connectors.has(key)) {
       this.logger.warn(`Overwriting existing connector registration for provider: ${plugin.provider}`);
