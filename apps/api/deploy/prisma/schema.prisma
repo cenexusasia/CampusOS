@@ -402,6 +402,34 @@ model Connector {
   @@map("connectors")
 }
 
+model Webhook {
+  id        String   @id @default(cuid())
+  tenantId  String
+  event     String   // event type to subscribe to
+  url       String   // destination URL
+  secret    String?  // HMAC secret
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  logs      WebhookLog[]
+
+  @@index([tenantId])
+  @@map("webhooks")
+}
+
+model WebhookLog {
+  id         String   @id @default(cuid())
+  webhookId  String
+  status     Int      // HTTP status code
+  response   String?  // Response body (truncated)
+  duration   Int      // ms
+  createdAt  DateTime @default(now())
+  webhook    Webhook  @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId])
+  @@map("webhook_logs")
+}
+
 model AuditLog {
   id         String   @id @default(cuid())
   tenantId   String?
