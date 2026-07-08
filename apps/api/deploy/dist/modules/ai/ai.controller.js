@@ -17,7 +17,11 @@ const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 let AIController = class AIController {
     async chat(body) {
-        const apiKey = 'sk-216abaae29064182af776144aed845e3';
+        const apiKey = process.env.DEEPSEEK_API_KEY;
+        if (!apiKey) {
+            throw new Error('DEEPSEEK_API_KEY environment variable is not set. ' +
+                'Please configure it in your environment (e.g. Railway dashboard, .env file) and restart the application.');
+        }
         const model = body.model ?? 'deepseek-chat';
         const messages = body.messages.map(m => ({ role: m.role, content: m.content }));
         if (body.system) {
