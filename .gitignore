@@ -47,3 +47,4 @@ pnpm-debug.log*
 pnpm-lock.yaml
 !/apps/api/deploy
 /apps/api/deploy/node_modules
+!/apps/api/deploy/dist

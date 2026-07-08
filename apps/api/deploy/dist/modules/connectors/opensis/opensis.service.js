@@ -35,7 +35,27 @@ let OpenSISService = OpenSISService_1 = class OpenSISService {
     constructor(prisma) {
         this.prisma = prisma;
     }
+    normalizeConfig(config) {
+        const normalized = { ...config };
+        if (!normalized.dbHost && normalized.mysqlHost) {
+            normalized.dbHost = normalized.mysqlHost;
+        }
+        if (!normalized.dbPort && normalized.mysqlPort) {
+            normalized.dbPort = normalized.mysqlPort;
+        }
+        if (!normalized.dbUser && normalized.mysqlUser) {
+            normalized.dbUser = normalized.mysqlUser;
+        }
+        if (!normalized.dbPassword && normalized.mysqlPassword) {
+            normalized.dbPassword = normalized.mysqlPassword;
+        }
+        if (!normalized.dbName && normalized.mysqlDatabase) {
+            normalized.dbName = normalized.mysqlDatabase;
+        }
+        return normalized;
+    }
     async connect(config, tenantId) {
+        config = this.normalizeConfig(config);
         this.logger.log(`Connecting OpenSIS for tenant ${tenantId} at ${config.apiUrl}`);
         let validatedBy;
         try {
@@ -106,7 +126,7 @@ let OpenSISService = OpenSISService_1 = class OpenSISService {
             name: c.name,
             provider: c.provider,
             status: c.status,
-            config: c.config,
+            config: this.normalizeConfig(c.config),
             lastSync: c.lastSync,
             createdAt: c.createdAt,
             updatedAt: c.updatedAt,
@@ -321,7 +341,7 @@ let OpenSISService = OpenSISService_1 = class OpenSISService {
                 message: 'OpenSIS connection not found',
             });
         }
-        const config = connector.config;
+        const config = this.normalizeConfig(connector.config);
         let result;
         result = await this.syncViaRestApi(config, connector.tenantId);
         if (result.studentsSynced === 0 && result.staffSynced === 0 && result.coursesSynced === 0) {

@@ -18,12 +18,17 @@ export interface OpenSISConfig {
   apiKey: string;
   apiSecret?: string;
   schoolId: string;
-  // MySQL fallback connection params
+  // MySQL fallback connection params (accepts both naming conventions)
   dbHost?: string;
+  mysqlHost?: string;
   dbPort?: number;
+  mysqlPort?: number;
   dbUser?: string;
+  mysqlUser?: string;
   dbPassword?: string;
+  mysqlPassword?: string;
   dbName?: string;
+  mysqlDatabase?: string;
 }
 
 export interface OpenSISConnection {
@@ -73,10 +78,41 @@ export class OpenSISService {
 
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Normalize config to handle both mysql* and db* naming conventions.
+   * Maps mysqlHost → dbHost, mysqlUser → dbUser, etc.
+   * Only applies the mapping if the target (db*) field is not already set.
+   */
+  private normalizeConfig(config: OpenSISConfig): OpenSISConfig {
+    const normalized = { ...config };
+
+    // Map mysql* fields to db* equivalents, preserving existing db* values
+    if (!normalized.dbHost && normalized.mysqlHost) {
+      normalized.dbHost = normalized.mysqlHost;
+    }
+    if (!normalized.dbPort && normalized.mysqlPort) {
+      normalized.dbPort = normalized.mysqlPort;
+    }
+    if (!normalized.dbUser && normalized.mysqlUser) {
+      normalized.dbUser = normalized.mysqlUser;
+    }
+    if (!normalized.dbPassword && normalized.mysqlPassword) {
+      normalized.dbPassword = normalized.mysqlPassword;
+    }
+    if (!normalized.dbName && normalized.mysqlDatabase) {
+      normalized.dbName = normalized.mysqlDatabase;
+    }
+
+    return normalized;
+  }
+
   async connect(
     config: OpenSISConfig,
     tenantId: string,
   ): Promise<{ success: boolean; connectionId: string; validatedBy?: string }> {
+    // Normalize config to handle both mysql* and db* naming conventions
+    config = this.normalizeConfig(config);
+
     this.logger.log(`Connecting OpenSIS for tenant ${tenantId} at ${config.apiUrl}`);
 
     let validatedBy: string | undefined;
@@ -158,7 +194,7 @@ export class OpenSISService {
       name: c.name,
       provider: c.provider,
       status: c.status,
-      config: c.config,
+      config: this.normalizeConfig(c.config as unknown as OpenSISConfig),
       lastSync: c.lastSync,
       createdAt: c.createdAt,
       updatedAt: c.updatedAt,
@@ -454,7 +490,8 @@ export class OpenSISService {
       });
     }
 
-    const config = connector.config as unknown as OpenSISConfig;
+    // Normalize config to handle both mysql* and db* naming conventions
+    const config = this.normalizeConfig(connector.config as unknown as OpenSISConfig);
 
     let result: { studentsSynced: number; staffSynced: number; coursesSynced: number };
 

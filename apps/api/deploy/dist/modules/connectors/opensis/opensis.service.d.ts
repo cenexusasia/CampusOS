@@ -5,10 +5,15 @@ export interface OpenSISConfig {
     apiSecret?: string;
     schoolId: string;
     dbHost?: string;
+    mysqlHost?: string;
     dbPort?: number;
+    mysqlPort?: number;
     dbUser?: string;
+    mysqlUser?: string;
     dbPassword?: string;
+    mysqlPassword?: string;
     dbName?: string;
+    mysqlDatabase?: string;
 }
 export interface OpenSISConnection {
     id: string;
@@ -26,6 +31,7 @@ export declare class OpenSISService {
     private readonly prisma;
     private readonly logger;
     constructor(prisma: PrismaService);
+    private normalizeConfig;
     connect(config: OpenSISConfig, tenantId: string): Promise<{
         success: boolean;
         connectionId: string;

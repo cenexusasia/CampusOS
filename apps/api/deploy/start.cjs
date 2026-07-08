@@ -6,11 +6,11 @@ const orig = Module._resolveFilename;
 
 Module._resolveFilename = function (req, parent) {
   if (req === '@campusos/shared') {
-    const p = path.resolve(__dirname, '..', '..', 'dist', 'shared.js');
+    const p = path.resolve(__dirname, 'dist', 'shared.js');
     if (fs.existsSync(p)) return p;
   }
   return orig.call(this, req, parent);
 };
 
-const main = path.resolve(__dirname, '..', '..', 'dist', 'main.js');
+const main = path.resolve(__dirname, 'dist', 'main.js');
 require(main);
