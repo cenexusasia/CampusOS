@@ -221,6 +221,11 @@ export class AuthService {
     return { secret: 'placeholder', qrCode: 'placeholder' };
   }
 
+  async logout(userId: string): Promise<{ message: string }> {
+    this.logger.log(`User ${userId} logged out`);
+    return { message: 'Logged out successfully' };
+  }
+
   async verifyMfa(userId: string, code: string): Promise<boolean> {
     // Placeholder - full MFA to be implemented
     return code === '123456';
