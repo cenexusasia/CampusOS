@@ -2,7 +2,7 @@
   "name": "@campusos/api",
   "version": "0.1.0",
   "private": true,
-  "description": "CampusOS API — NestJS Backend",
+  "description": "CampusOS API \u2014 NestJS Backend",
   "scripts": {
     "dev": "nest start --watch",
     "build": "prisma generate",
@@ -102,5 +102,6 @@
     "moduleNameMapper": {
       "^@api/(.*)$": "<rootDir>/$1"
     }
-  }
+  },
+  "license": "AGPL-3.0-or-later"
 }

@@ -2,7 +2,7 @@
   "name": "@campusos/web",
   "version": "0.1.0",
   "private": true,
-  "description": "CampusOS Web Frontend — Next.js 15 App Router",
+  "description": "CampusOS Web Frontend \u2014 Next.js 15 App Router",
   "scripts": {
     "dev": "next dev --turbopack --port 3000",
     "build": "next build --no-lint",
@@ -39,5 +39,6 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.0"
-  }
+  },
+  "license": "AGPL-3.0-or-later"
 }

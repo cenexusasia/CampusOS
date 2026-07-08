@@ -2,7 +2,7 @@
   "name": "campusos",
   "version": "0.1.0",
   "private": true,
-  "description": "CampusOS — AI Operating System for Educational Institutions",
+  "description": "CampusOS \u2014 AI Operating System for Educational Institutions",
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
@@ -35,5 +35,6 @@
   },
   "engines": {
     "node": ">=20"
-  }
+  },
+  "license": "AGPL-3.0-or-later"
 }
