@@ -3,7 +3,9 @@
 export const dynamic = 'force-dynamic';
 
 import { useState } from 'react';
-import { Search, Plus, BookOpen, Users, GraduationCap, Clock } from 'lucide-react';
+import Link from 'next/link';
+import { Search, Plus, BookOpen } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
 
 interface Course {
   code: string;
@@ -25,17 +27,14 @@ const SAMPLE_COURSES: Course[] = [
   { code: 'BUS 310', name: 'Marketing Strategy', department: 'Business Administration', instructor: 'Prof. Michael Torres', students: 41, status: 'Active' },
 ];
 
-const gradientBorders = [
-  'from-blue-500 to-cyan-400',
-  'from-emerald-500 to-teal-400',
-  'from-purple-500 to-fuchsia-400',
-  'from-amber-500 to-orange-400',
-  'from-rose-500 to-pink-400',
-  'from-indigo-500 to-violet-400',
-];
+const COURSE_COLORS = ['#2563eb', '#7c3aed', '#db2777', '#dc2626', '#ea580c', '#ca8a04', '#16a34a', '#0891b2'];
 
-function getInstructorInitials(name: string): string {
-  return name.split(' ').map((n) => n.replace(/^(Dr\.|Prof\.)\s*/, '')[0]).join('');
+function computeProgress(code: string): number {
+  let hash = 0;
+  for (let i = 0; i < code.length; i++) {
+    hash = code.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.min(100, Math.max(10, Math.abs(hash) % 100));
 }
 
 export default function CoursesPage() {
@@ -51,6 +50,7 @@ export default function CoursesPage() {
 
   const activeCount = SAMPLE_COURSES.filter((c) => c.status === 'Active').length;
   const inactiveCount = SAMPLE_COURSES.filter((c) => c.status === 'Inactive').length;
+  const hasCourses = SAMPLE_COURSES.length > 0;
 
   return (
     <div className="space-y-6 page-enter">
@@ -95,83 +95,67 @@ export default function CoursesPage() {
         />
       </div>
 
-      {/* Course cards */}
-      {filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border bg-card py-16 shadow-sm">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted/50">
-            <BookOpen className="h-8 w-8 text-muted-foreground/40" />
-          </div>
-          <h3 className="mt-4 text-sm font-medium">No courses found</h3>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Try adjusting your search criteria.
-          </p>
-          <button
-            onClick={() => setSearch('')}
-            className="mt-4 text-xs font-medium text-primary hover:underline"
-          >
-            Clear search
-          </button>
+      {/* Course cards grid */}
+      {hasCourses && filtered.length === 0 ? (
+        <EmptyState
+          icon={BookOpen}
+          title="No courses found"
+          description="Try adjusting your search criteria."
+          action={{ label: 'Clear search', onClick: () => setSearch('') }}
+        />
+      ) : hasCourses ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filtered.map((course, index) => {
+            const progress = computeProgress(course.code);
+            return (
+              <Link
+                key={course.code}
+                href={`/courses/${course.code.toLowerCase().replace(/\s+/g, '-')}`}
+                className="block group"
+              >
+                <div className="bg-white dark:bg-card rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all overflow-hidden">
+                  <div
+                    className="h-2"
+                    style={{ backgroundColor: COURSE_COLORS[index % COURSE_COLORS.length] }}
+                  />
+                  <div className="p-4">
+                    <div className="flex items-start justify-between">
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors text-sm leading-snug">
+                        {course.name}
+                      </h3>
+                      <span
+                        className={
+                          course.status === 'Active'
+                            ? 'badge-success shrink-0 ml-2'
+                            : 'badge-neutral shrink-0 ml-2'
+                        }
+                      >
+                        {course.status}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-400 mt-0.5">{course.code}</p>
+                    <p className="text-xs text-gray-500 mt-2">{course.instructor}</p>
+                    <div className="mt-3">
+                      <div className="h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-blue-500 rounded-full transition-all"
+                          style={{ width: `${progress}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-400 mt-1">{progress}% complete</p>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((course, i) => (
-            <div
-              key={course.code}
-              className="card-lift group relative overflow-hidden rounded-xl border bg-card shadow-sm"
-            >
-              {/* Gradient accent border top */}
-              <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${gradientBorders[i % gradientBorders.length]}`} />
-
-              <div className="p-5 pt-6">
-                {/* Course code + status */}
-                <div className="flex items-start justify-between">
-                  <span className="rounded-lg bg-muted px-2 py-0.5 text-xs font-mono font-medium text-muted-foreground">
-                    {course.code}
-                  </span>
-                  <span className={course.status === 'Active' ? 'badge-success' : 'badge-neutral'}>
-                    {course.status}
-                  </span>
-                </div>
-
-                {/* Course name */}
-                <h3 className="mt-3 text-sm font-semibold leading-snug">{course.name}</h3>
-                <p className="mt-1 text-xs text-muted-foreground">{course.department}</p>
-
-                <div className="mt-4 space-y-2.5 border-t pt-4">
-                  {/* Instructor */}
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[10px] font-semibold text-primary">
-                      {getInstructorInitials(course.instructor)}
-                    </div>
-                    <span className="text-xs text-muted-foreground">{course.instructor}</span>
-                  </div>
-
-                  {/* Enrollment */}
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
-                      <Users className="h-3.5 w-3.5" />
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-xs font-medium">{course.students}</span>
-                      <span className="text-xs text-muted-foreground">students enrolled</span>
-                    </div>
-                    <div className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
-                      <Clock className="h-3 w-3" />
-                      <span>Fall 2024</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Hover overlay action */}
-                <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-primary/0 opacity-0 transition-all duration-200 group-hover:bg-primary/5 group-hover:opacity-100">
-                  <button className="btn-primary scale-90 opacity-0 transition-all duration-200 group-hover:scale-100 group-hover:opacity-100">
-                    View Details
-                  </button>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <EmptyState
+          icon={BookOpen}
+          title="No courses yet"
+          description="Connect your LMS to sync courses."
+        />
       )}
     </div>
   );

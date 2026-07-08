@@ -21,6 +21,7 @@ import {
   AlertCircle,
   RefreshCw,
 } from 'lucide-react';
+import { EmptyState } from '@/components/empty-state';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'https://api-production-bdc0.up.railway.app';
 
@@ -222,6 +223,12 @@ export default function AnalyticsPage() {
 
   const maxEnrollment = Math.max(...data.enrollments.map((e) => e.pct), 1);
 
+  const hasAnyData =
+    (data.metrics && (data.metrics.totalStudents > 0 || data.metrics.activeCourses > 0 || data.metrics.faculty > 0)) ||
+    data.enrollments.length > 0 ||
+    data.trends.length > 0 ||
+    data.kpis.length > 0;
+
   return (
     <div className="space-y-6 page-enter">
       {/* Header */}
@@ -287,6 +294,12 @@ export default function AnalyticsPage() {
             <p className="text-sm text-muted-foreground">Loading analytics data...</p>
           </div>
         </div>
+      ) : !hasAnyData ? (
+        <EmptyState
+          icon={BarChart3}
+          title="No analytics data yet"
+          description="Connect your systems to see insights."
+        />
       ) : (
         <>
           {/* Metric cards */}
