@@ -30,7 +30,7 @@ let AIController = class AIController {
             id: 'default',
             name: 'DeepSeek',
             provider: 'deepseek',
-            apiKey: process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY || '',
+            apiKey: process.env.DEEPSEEK_API_KEY || 'sk-216abaae29064182af776144aed845e3',
             baseUrl: 'https://api.deepseek.com/v1',
             models: ['deepseek-chat'],
             isActive: true,
