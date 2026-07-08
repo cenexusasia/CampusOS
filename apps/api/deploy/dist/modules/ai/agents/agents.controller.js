@@ -13,6 +13,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AgentsController = void 0;
+const throttler_1 = require("@nestjs/throttler");
 const common_1 = require("@nestjs/common");
 const swagger_1 = require("@nestjs/swagger");
 const agent_service_1 = require("./agent.service");
@@ -59,5 +60,6 @@ exports.AgentsController = AgentsController = __decorate([
     (0, common_1.Controller)('api/v1/agents'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, swagger_1.ApiBearerAuth)('access-token'),
+    (0, throttler_1.Throttle)({ default: { ttl: 60000, limit: 20 } }),
     __metadata("design:paramtypes", [agent_service_1.AgentService])
 ], AgentsController);

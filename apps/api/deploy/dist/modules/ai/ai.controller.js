@@ -14,6 +14,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AIController = void 0;
 const common_1 = require("@nestjs/common");
+const throttler_1 = require("@nestjs/throttler");
 const swagger_1 = require("@nestjs/swagger");
 let AIController = class AIController {
     async chat(body) {
@@ -69,5 +70,6 @@ __decorate([
 ], AIController.prototype, "chat", null);
 exports.AIController = AIController = __decorate([
     (0, swagger_1.ApiTags)('AI'),
-    (0, common_1.Controller)('ai')
+    (0, common_1.Controller)('ai'),
+    (0, throttler_1.Throttle)({ default: { ttl: 60000, limit: 20 } })
 ], AIController);

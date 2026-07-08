@@ -19,6 +19,9 @@ const prisma_service_1 = require("../../../prisma/prisma.service");
 const promise_1 = __importDefault(require("mysql2/promise"));
 let MoodleService = MoodleService_1 = class MoodleService {
     prisma;
+    provider = 'MOODLE';
+    name = 'Moodle';
+    capabilities = { sync: true, webhook: false, oauth: false, basicAuth: false, apiKey: false };
     logger = new common_1.Logger(MoodleService_1.name);
     constructor(prisma) {
         this.prisma = prisma;
@@ -81,6 +84,9 @@ let MoodleService = MoodleService_1 = class MoodleService {
         });
         this.logger.log(`Moodle connector created: ${connector.id}`);
         return { success: true, connectionId: connector.id };
+    }
+    async list(tenantId) {
+        return this.listConnections(tenantId);
     }
     async listConnections(tenantId) {
         this.logger.log(`Listing Moodle connections for tenant: ${tenantId}`);

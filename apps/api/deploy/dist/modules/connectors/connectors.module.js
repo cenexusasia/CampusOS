@@ -15,41 +15,47 @@ const common_1 = require("@nestjs/common");
 const google_module_1 = require("./google/google.module");
 const moodle_module_1 = require("./moodle/moodle.module");
 const opensis_module_1 = require("./opensis/opensis.module");
+const erpnext_module_1 = require("./erpnext/erpnext.module");
 const connectors_controller_1 = require("./connectors.controller");
 const connectors_service_1 = require("./connectors.service");
 const connectors_registry_1 = require("./connectors.registry");
 const moodle_service_1 = require("./moodle/moodle.service");
 const opensis_service_1 = require("./opensis/opensis.service");
 const google_service_1 = require("./google/google.service");
+const erpnext_service_1 = require("./erpnext/erpnext.service");
 let ConnectorsModule = ConnectorsModule_1 = class ConnectorsModule {
     registry;
     moodleService;
     openSISService;
     googleService;
+    erpnextService;
     logger = new common_1.Logger(ConnectorsModule_1.name);
-    constructor(registry, moodleService, openSISService, googleService) {
+    constructor(registry, moodleService, openSISService, googleService, erpnextService) {
         this.registry = registry;
         this.moodleService = moodleService;
         this.openSISService = openSISService;
         this.googleService = googleService;
+        this.erpnextService = erpnextService;
     }
     onModuleInit() {
         this.registry.register(this.moodleService);
         this.registry.register(this.openSISService);
         this.registry.register(this.googleService);
+        this.registry.register(this.erpnextService);
         this.logger.log('All connectors registered in the ConnectorRegistry');
     }
 };
 exports.ConnectorsModule = ConnectorsModule;
 exports.ConnectorsModule = ConnectorsModule = ConnectorsModule_1 = __decorate([
     (0, common_1.Module)({
-        imports: [google_module_1.GoogleModule, moodle_module_1.MoodleModule, opensis_module_1.OpenSISModule],
+        imports: [google_module_1.GoogleModule, moodle_module_1.MoodleModule, opensis_module_1.OpenSISModule, erpnext_module_1.ERPNextModule],
         controllers: [connectors_controller_1.ConnectorsController],
         providers: [connectors_service_1.ConnectorsService, connectors_registry_1.ConnectorRegistry],
-        exports: [google_module_1.GoogleModule, moodle_module_1.MoodleModule, opensis_module_1.OpenSISModule, connectors_service_1.ConnectorsService, connectors_registry_1.ConnectorRegistry],
+        exports: [google_module_1.GoogleModule, moodle_module_1.MoodleModule, opensis_module_1.OpenSISModule, erpnext_module_1.ERPNextModule, connectors_service_1.ConnectorsService, connectors_registry_1.ConnectorRegistry],
     }),
     __metadata("design:paramtypes", [connectors_registry_1.ConnectorRegistry,
         moodle_service_1.MoodleService,
         opensis_service_1.OpenSISService,
-        google_service_1.GoogleService])
+        google_service_1.GoogleService,
+        erpnext_service_1.ERPNextService])
 ], ConnectorsModule);

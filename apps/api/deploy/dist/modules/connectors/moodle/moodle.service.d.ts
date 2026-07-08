@@ -1,3 +1,4 @@
+import type { ConnectorPlugin } from '../connector.interface';
 import { PrismaService } from '../../../prisma/prisma.service';
 export interface MoodleConfig {
     mysqlHost?: string;
@@ -18,8 +19,17 @@ export interface MoodleConnection {
     createdAt: Date;
     updatedAt: Date;
 }
-export declare class MoodleService {
+export declare class MoodleService implements ConnectorPlugin {
     private readonly prisma;
+    readonly provider = "MOODLE";
+    readonly name = "Moodle";
+    readonly capabilities: {
+        sync: boolean;
+        webhook: boolean;
+        oauth: boolean;
+        basicAuth: boolean;
+        apiKey: boolean;
+    };
     private readonly logger;
     constructor(prisma: PrismaService);
     private getConfig;
@@ -29,6 +39,7 @@ export declare class MoodleService {
         connectionId: string;
         siteInfo?: unknown;
     }>;
+    list(tenantId: string): Promise<ConnectorStatus[]>;
     listConnections(tenantId: string): Promise<MoodleConnection[]>;
     disconnect(connectionId: string): Promise<void>;
     syncCourses(config: MoodleConfig, tenantId: string): Promise<number>;

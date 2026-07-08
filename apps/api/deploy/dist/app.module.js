@@ -29,6 +29,7 @@ const events_module_1 = require("./modules/events/events.module");
 const webhooks_module_1 = require("./modules/webhooks/webhooks.module");
 const queue_module_1 = require("./modules/queue/queue.module");
 const request_id_middleware_1 = require("./common/middleware/request-id.middleware");
+const throttle_module_1 = require("./modules/throttle/throttle.module");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(request_id_middleware_1.RequestIdMiddleware).forRoutes('*');
@@ -51,6 +52,7 @@ exports.AppModule = AppModule = __decorate([
                     maxAge: '7d',
                 },
             }),
+            throttle_module_1.ThrottleModule,
             health_module_1.HealthModule,
             prisma_module_1.PrismaModule,
             auth_module_1.AuthModule,
