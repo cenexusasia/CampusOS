@@ -145,7 +145,7 @@ export default function ConnectorsPage() {
   const fetchConnectors = useCallback(async () => {
     setState((prev) => ({ ...prev, loading: true, error: null }));
     try {
-      const res = await fetch(`${API_BASE}/api/connectors`, {
+      const res = await fetch(`${API_BASE}/api/v1/connectors`, {
         headers: getAuthHeaders(),
       });
       if (!res.ok) {
@@ -175,7 +175,7 @@ export default function ConnectorsPage() {
     }));
 
     try {
-      const res = await fetch(`${API_BASE}/api/connectors/moodle/${connector.id}/sync`, {
+      const res = await fetch(`${API_BASE}/api/v1/connectors/moodle/${connector.id}/sync`, {
         method: 'POST',
         headers: getAuthHeaders(),
       });
@@ -197,7 +197,7 @@ export default function ConnectorsPage() {
   const handleDisconnect = async (connector: Connector) => {
     try {
       const res = await fetch(
-        `${API_BASE}/api/connectors/${connector.provider}/${connector.id}`,
+        `${API_BASE}/api/v1/connectors/${connector.provider}/${connector.id}`,
         {
           method: 'DELETE',
           headers: getAuthHeaders(),

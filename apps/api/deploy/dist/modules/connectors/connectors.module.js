@@ -11,12 +11,16 @@ const common_1 = require("@nestjs/common");
 const google_module_1 = require("./google/google.module");
 const moodle_module_1 = require("./moodle/moodle.module");
 const opensis_module_1 = require("./opensis/opensis.module");
+const connectors_controller_1 = require("./connectors.controller");
+const connectors_service_1 = require("./connectors.service");
 let ConnectorsModule = class ConnectorsModule {
 };
 exports.ConnectorsModule = ConnectorsModule;
 exports.ConnectorsModule = ConnectorsModule = __decorate([
     (0, common_1.Module)({
         imports: [google_module_1.GoogleModule, moodle_module_1.MoodleModule, opensis_module_1.OpenSISModule],
-        exports: [google_module_1.GoogleModule, moodle_module_1.MoodleModule, opensis_module_1.OpenSISModule],
+        controllers: [connectors_controller_1.ConnectorsController],
+        providers: [connectors_service_1.ConnectorsService],
+        exports: [google_module_1.GoogleModule, moodle_module_1.MoodleModule, opensis_module_1.OpenSISModule, connectors_service_1.ConnectorsService],
     })
 ], ConnectorsModule);

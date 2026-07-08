@@ -13,7 +13,7 @@ exports.PermissionsGuard = void 0;
 const common_1 = require("@nestjs/common");
 const core_1 = require("@nestjs/core");
 const permissions_decorator_1 = require("../decorators/permissions.decorator");
-const shared_1 = require("@campusos/shared");
+const shared_1 = require("../../shared");
 let PermissionsGuard = class PermissionsGuard {
     reflector;
     constructor(reflector) {

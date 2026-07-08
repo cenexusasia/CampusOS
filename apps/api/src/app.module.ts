@@ -15,6 +15,7 @@ import { StudentsModule } from './modules/students/students.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { KnowledgeModule } from './modules/knowledge/knowledge.module';
+import { QueueModule } from './modules/queue/queue.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 
 @Module({
@@ -49,6 +50,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     StudentsModule,
     AnalyticsModule,
     KnowledgeModule,
+    QueueModule,
     SettingsModule,
   ],
 })
