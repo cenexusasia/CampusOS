@@ -1,0 +1,119 @@
+# =============================================================================
+# CampusOS — Docker Compose (Local Development)
+# =============================================================================
+# Usage:
+#   docker compose up              # start everything
+#   docker compose up -d           # start in background
+#   docker compose down            # stop and remove containers
+#
+# First run:
+#   1. Copy .env.example → .env and adjust if needed (defaults work for dev)
+#   2. docker compose up
+#   3. Run migrations if not auto-applied: docker compose exec api npx prisma migrate deploy
+# =============================================================================
+
+services:
+  # ---- NestJS API ----------------------------------------------------------
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/deploy/Dockerfile
+    container_name: campusos-api
+    ports:
+      - "${API_PORT:-4000}:4000"
+    environment:
+      # Database
+      DATABASE_URL: "postgresql://${POSTGRES_USER:-campusos}:${POSTGRES_PASSWORD:-campusos}@db:5432/${POSTGRES_DB:-campusos}?schema=public"
+      # Redis
+      REDIS_URL: "redis://:${REDIS_PASSWORD:-}@redis:6379"
+      # Auth
+      JWT_SECRET: "${JWT_SECRET:-local-dev-jwt-secret-change-in-production}"
+      JWT_REFRESH_SECRET: "${JWT_REFRESH_SECRET:-local-dev-refresh-secret-change-in-production}"
+      # AI — optional, omit unless you need AI features
+      DEEPSEEK_API_KEY: "${DEEPSEEK_API_KEY:-}"
+      # Node
+      NODE_ENV: development
+      API_PORT: "4000"
+      API_GLOBAL_PREFIX: "${API_GLOBAL_PREFIX:-api/v1}"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      # Mount dist/ for hot-reload during development (requires local build)
+      - ./apps/api/deploy/dist:/app/dist
+      # Persistent uploads
+      - uploads:/app/uploads
+    networks:
+      - campusos-network
+    restart: unless-stopped
+
+  # ---- PostgreSQL 16 + pgvector --------------------------------------------
+  db:
+    build:
+      context: ./docker
+      dockerfile: Dockerfile.postgres
+    container_name: campusos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER:-campusos}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-campusos}"
+      POSTGRES_DB: "${POSTGRES_DB:-campusos}"
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-campusos} -d ${POSTGRES_DB:-campusos}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - campusos-network
+
+  # ---- Redis 7 --------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: campusos-redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
+      ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - campusos-network
+
+# ---- Volumes ---------------------------------------------------------------
+volumes:
+  postgres_data:
+    name: campusos-postgres-data
+    driver: local
+  redis_data:
+    name: campusos-redis-data
+    driver: local
+  uploads:
+    name: campusos-uploads
+    driver: local
+
+# ---- Network ---------------------------------------------------------------
+networks:
+  campusos-network:
+    name: campusos-network
+    driver: bridge

@@ -1,0 +1,49 @@
+# Reduce build context size — deploy Dockerfile only needs:
+#   apps/api/deploy/
+#   apps/api/prisma/
+#   apps/api/deploy/Dockerfile
+
+# Dependencies (reinstalled in container)
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs (not in deploy context itself, but exclude from root)
+**/dist/
+**/build/
+.next/
+out/
+.turbo/
+
+# Environment
+.env
+.env*.local
+
+# Version control
+.git/
+.gitignore
+.gitattributes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+docker/
+docker-compose*.yml
+
+# Misc
+*.log
+coverage/
+.cache/
+.vercel
+.railway
+.github/
+docs/
+scripts/
