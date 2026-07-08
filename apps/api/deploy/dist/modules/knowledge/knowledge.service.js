@@ -46,7 +46,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.KnowledgeService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
-const shared_1 = require("../../shared");
+const shared_1 = require("@campusos/shared");
 const fs = __importStar(require("node:fs"));
 const path = __importStar(require("node:path"));
 const uuid_1 = require("uuid");

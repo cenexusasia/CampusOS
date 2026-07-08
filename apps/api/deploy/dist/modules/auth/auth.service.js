@@ -49,7 +49,7 @@ const config_1 = require("@nestjs/config");
 const jwt_1 = require("@nestjs/jwt");
 const bcrypt = __importStar(require("bcryptjs"));
 const prisma_service_1 = require("../../prisma/prisma.service");
-const shared_1 = require("../../shared");
+const shared_1 = require("@campusos/shared");
 let AuthService = AuthService_1 = class AuthService {
     prisma;
     jwtService;

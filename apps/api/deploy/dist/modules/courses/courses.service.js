@@ -13,7 +13,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CoursesService = void 0;
 const common_1 = require("@nestjs/common");
 const prisma_service_1 = require("../../prisma/prisma.service");
-const shared_1 = require("../../shared");
+const shared_1 = require("@campusos/shared");
 let CoursesService = CoursesService_1 = class CoursesService {
     prisma;
     logger = new common_1.Logger(CoursesService_1.name);
