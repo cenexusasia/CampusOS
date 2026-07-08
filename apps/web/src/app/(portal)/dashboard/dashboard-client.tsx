@@ -105,7 +105,7 @@ export function DashboardClient() {
         </div>
 
         {/* Skeleton stat cards */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="rounded-xl border bg-card p-5">
               <div className="flex items-start justify-between">
@@ -121,7 +121,7 @@ export function DashboardClient() {
         </div>
 
         {/* Skeleton overview + system status */}
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
           <div className="rounded-xl border bg-card p-5 shadow-sm lg:col-span-2">
             <div className="h-4 w-32 skeleton rounded-md" />
             <div className="mt-4 space-y-3">
@@ -141,7 +141,7 @@ export function DashboardClient() {
         </div>
 
         {/* Skeleton AI chat area */}
-        <div className="h-[600px] skeleton rounded-xl" />
+        <div className="h-[400px] sm:h-[600px] skeleton rounded-xl" />
       </div>
     );
   }
@@ -203,14 +203,14 @@ export function DashboardClient() {
   return (
     <div className="space-y-6 page-enter">
       {/* Welcome card with gradient */}
-      <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary via-primary/90 to-violet-600 p-6 md:p-8 text-primary-foreground shadow-lg">
+      <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary via-primary/90 to-violet-600 p-5 md:p-8 text-primary-foreground shadow-lg">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-        <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative z-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex-1">
-            <h1 className="text-2xl font-bold tracking-tight md:text-3xl fade-in">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight fade-in">
               Welcome back{user?.name ? `, ${user.name.split(' ')[0]}` : ''}
             </h1>
-            <p className="mt-2 text-sm text-primary-foreground/80 max-w-lg slide-up">
+            <p className="mt-1.5 md:mt-2 text-xs sm:text-sm text-primary-foreground/80 max-w-lg slide-up">
               Here is what is happening across your institution today. Track metrics, manage resources, and stay on top of your campus operations.
             </p>
           </div>
@@ -227,16 +227,18 @@ export function DashboardClient() {
         </div>
       </div>
 
-      {/* Quick actions */}
-      <div className="flex flex-wrap gap-2">
+      {/* Quick actions - full width on mobile */}
+      <div className="grid grid-cols-1 sm:flex sm:flex-wrap gap-2">
         {quickActions.map((action) => (
           <Link
             key={action.label}
             href={action.href}
-            className="inline-flex items-center gap-2 rounded-lg border bg-card px-4 py-2 text-sm font-medium shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5"
+            className="inline-flex items-center justify-between gap-2 rounded-lg border bg-card px-4 py-3 sm:py-2 text-sm font-medium shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md sm:hover:-translate-y-0.5"
           >
-            <action.icon className={`h-4 w-4 ${action.color}`} />
-            {action.label}
+            <span className="inline-flex items-center gap-2">
+              <action.icon className={`h-4 w-4 ${action.color}`} />
+              {action.label}
+            </span>
             <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50" />
           </Link>
         ))}
@@ -244,7 +246,7 @@ export function DashboardClient() {
 
       {/* Stats grid */}
       {isDataLoading ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
             <div key={i} className="rounded-xl border bg-card p-5">
               <div className="flex items-start justify-between">
@@ -274,7 +276,7 @@ export function DashboardClient() {
             </div>
           )}
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
             {statCards.map((stat, i) => (
               <div
                 key={stat.label}
@@ -308,7 +310,7 @@ export function DashboardClient() {
       )}
 
       {/* System health + quick info */}
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
         <div className="flex flex-col rounded-xl border bg-card p-5 shadow-sm lg:col-span-2">
           <div className="flex items-center justify-between">
             <h3 className="font-semibold text-sm flex items-center gap-2">
@@ -423,7 +425,7 @@ export function DashboardClient() {
       </div>
 
       {/* AI Chat section */}
-      <div id="ai-chat" className="h-[600px]">
+      <div id="ai-chat" className="h-[400px] sm:h-[600px]">
         <AiChat />
       </div>
     </div>

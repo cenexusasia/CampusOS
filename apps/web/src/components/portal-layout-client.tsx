@@ -20,7 +20,7 @@ export function PortalLayoutClient({ children }: { children: React.ReactNode }) 
       />
       <div className="flex flex-1 flex-col overflow-hidden">
         <Header onMenuToggle={handleMenuToggle} />
-        <main className="flex-1 overflow-y-auto bg-muted/30 px-3 py-4 md:px-6 md:py-6 pb-20 md:pb-6 scroll-smooth">
+        <main className="flex-1 overflow-y-auto bg-muted/30 px-3 py-4 md:px-6 md:py-6 pb-20 pb-safe md:pb-6 scroll-smooth scroll-mb-tab">
           {children}
         </main>
         <Footer />
