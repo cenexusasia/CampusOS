@@ -29,10 +29,27 @@ export function useAiChat() {
     setIsLoading(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'https://api-production-bdc0.up.railway.app';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? 'https://api-production-60fbe.up.railway.app';
+      const token = typeof window !== 'undefined' ? (await import('next-auth/react')).getSession() : null;
+
+      // Get auth token from session
+      let authToken = '';
+      try {
+        const session = await (await import('next-auth/react')).getSession();
+        if (session?.user) {
+          // Try to get from the session's access token
+          const res = await fetch('/api/auth/session');
+          const data = await res.json();
+          if (data.accessToken) authToken = data.accessToken;
+        }
+      } catch {}
+
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (authToken) headers['Authorization'] = `Bearer ${authToken}`;
+
       const res = await fetch(`${apiUrl}/api/v1/ai/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           messages: [...messages, userMessage].map((m) => ({
             role: m.role,
