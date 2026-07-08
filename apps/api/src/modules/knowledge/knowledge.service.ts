@@ -12,11 +12,73 @@ import { v4 as uuidv4 } from 'uuid';
 import { PDFParse } from 'pdf-parse';
 import * as mammoth from 'mammoth';
 
+export interface SearchResult {
+  id: string;
+  content: string;
+  chunkIndex: number;
+  metadata: any;
+  similarity?: number;
+  document: {
+    id: string;
+    name: string;
+    mimeType: string;
+    status: string;
+  };
+  createdAt: Date;
+}
+
 @Injectable()
 export class KnowledgeService {
   private readonly logger = new Logger(KnowledgeService.name);
+  private readonly embeddingEndpoint = 'https://api.deepseek.com/v1/embeddings';
 
   constructor(private readonly prisma: PrismaService) {}
+
+  async generateEmbedding(text: string): Promise<number[]> {
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    if (!apiKey) {
+      throw new Error('DEEPSEEK_API_KEY is not configured');
+    }
+
+    const response = await fetch(this.embeddingEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'deepseek-embedding',
+        input: text,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorBody = await response.text();
+      throw new Error(
+        `DeepSeek embeddings API error (${response.status}): ${errorBody}`,
+      );
+    }
+
+    const data = (await response.json()) as {
+      data: Array<{ embedding: number[] }>;
+    };
+
+    if (!data.data?.[0]?.embedding) {
+      throw new Error('Unexpected DeepSeek embeddings response format');
+    }
+
+    return data.data[0].embedding;
+  }
+
+  async ensureVectorColumn(): Promise<void> {
+    await this.prisma.$executeRawUnsafe(
+      `ALTER TABLE document_chunks ADD COLUMN IF NOT EXISTS embedding vector(1536)`,
+    );
+    await this.prisma.$executeRawUnsafe(
+      `CREATE INDEX IF NOT EXISTS document_chunks_embedding_idx ON document_chunks USING ivfflat (embedding vector_cosine_ops) WITH (lists = 100)`,
+    );
+    this.logger.log('Ensured vector column and index exist on document_chunks');
+  }
 
   async upload(
     tenantId: string,
@@ -65,17 +127,34 @@ export class KnowledgeService {
       const chunks = this.chunkText(text, 1000);
 
       if (chunks.length > 0) {
-        await this.prisma.documentChunk.createMany({
-          data: chunks.map((content, index) => ({
-            documentId: document.id,
-            content,
-            chunkIndex: index,
-            metadata: {},
-          })),
-        });
-        this.logger.log(
-          `Created ${chunks.length} chunks for document ${document.id}`,
+        // Ensure vector column exists before storing embeddings
+        try {
+          await this.ensureVectorColumn();
+        } catch (err: any) {
+          this.logger.warn(
+            `Could not ensure vector column (non-fatal): ${err.message}`,
+          );
+        }
+
+        // Create chunks first, then update embeddings
+        const createdChunks = await this.prisma.$transaction(
+          chunks.map((content, index) =>
+            this.prisma.documentChunk.create({
+              data: {
+                documentId: document.id,
+                content,
+                chunkIndex: index,
+                metadata: {},
+              },
+            }),
+          ),
         );
+        this.logger.log(
+          `Created ${createdChunks.length} chunks for document ${document.id}`,
+        );
+
+        // Generate embeddings for each chunk (best-effort, non-blocking)
+        this.generateChunkEmbeddings(createdChunks, document.id);
       }
 
       await this.prisma.document.update({
@@ -98,7 +177,47 @@ export class KnowledgeService {
     });
   }
 
-  async search(tenantId: string, query: string): Promise<any[]> {
+  /**
+   * Background: generate embeddings for all chunks of a document.
+   * Runs asynchronously — failures are logged but don't block the upload response.
+   */
+  private async generateChunkEmbeddings(
+    chunks: Array<{ id: string; content: string }>,
+    documentId: string,
+  ): Promise<void> {
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+    if (!apiKey) {
+      this.logger.warn(
+        'DEEPSEEK_API_KEY not set — skipping embedding generation',
+      );
+      return;
+    }
+
+    for (const chunk of chunks) {
+      try {
+        const embedding = await this.generateEmbedding(chunk.content);
+        const vectorStr = `[${embedding.join(',')}]`;
+        await this.prisma.$executeRawUnsafe(
+          `UPDATE document_chunks SET embedding = $1::vector WHERE id = $2`,
+          vectorStr,
+          chunk.id,
+        );
+      } catch (err: any) {
+        this.logger.error(
+          `Failed to generate embedding for chunk ${chunk.id} of document ${documentId}: ${err.message}`,
+        );
+      }
+    }
+
+    this.logger.log(
+      `Finished embedding generation for document ${documentId} (${chunks.length} chunks)`,
+    );
+  }
+
+  async search(
+    tenantId: string,
+    query: string,
+  ): Promise<SearchResult[]> {
     if (!query || query.trim().length === 0) {
       throw new BadRequestException({
         code: ERROR_CODES.VALIDATION_ERROR,
@@ -106,6 +225,90 @@ export class KnowledgeService {
       });
     }
 
+    // Try semantic search first
+    try {
+      const results = await this.semanticSearch(tenantId, query);
+      if (results.length > 0) {
+        return results;
+      }
+    } catch (err: any) {
+      this.logger.warn(
+        `Semantic search failed, falling back to keyword search: ${err.message}`,
+      );
+    }
+
+    // Fallback to keyword search
+    return this.keywordSearch(tenantId, query);
+  }
+
+  /**
+   * Cosine similarity search using pgvector.
+   */
+  private async semanticSearch(
+    tenantId: string,
+    query: string,
+  ): Promise<SearchResult[]> {
+    const embedding = await this.generateEmbedding(query);
+    const vectorStr = `[${embedding.join(',')}]`;
+
+    const rows = await this.prisma.$queryRawUnsafe<
+      Array<{
+        id: string;
+        content: string;
+        chunk_index: number;
+        metadata: any;
+        document_id: string;
+        document_name: string;
+        mime_type: string;
+        status: string;
+        created_at: Date;
+        similarity: number;
+      }>
+    >(
+      `SELECT
+        dc.id,
+        dc.content,
+        dc.chunk_index,
+        dc.metadata,
+        dc.document_id,
+        d.name AS document_name,
+        d.mime_type,
+        d.status,
+        dc.created_at,
+        1 - (dc.embedding <=> $1::vector) AS similarity
+      FROM document_chunks dc
+      JOIN documents d ON d.id = dc.document_id
+      WHERE d.tenant_id = $2
+        AND dc.embedding IS NOT NULL
+      ORDER BY dc.embedding <=> $1::vector
+      LIMIT 10`,
+      vectorStr,
+      tenantId,
+    );
+
+    return rows.map((row) => ({
+      id: row.id,
+      content: row.content,
+      chunkIndex: row.chunk_index,
+      metadata: row.metadata,
+      similarity: row.similarity,
+      document: {
+        id: row.document_id,
+        name: row.document_name,
+        mimeType: row.mime_type,
+        status: row.status,
+      },
+      createdAt: row.created_at,
+    }));
+  }
+
+  /**
+   * Keyword (LIKE/contains) search as fallback.
+   */
+  private async keywordSearch(
+    tenantId: string,
+    query: string,
+  ): Promise<SearchResult[]> {
     const chunks = await this.prisma.documentChunk.findMany({
       where: {
         document: { tenantId },
