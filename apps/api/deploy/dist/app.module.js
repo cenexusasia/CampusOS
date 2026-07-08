@@ -24,6 +24,7 @@ const students_module_1 = require("./modules/students/students.module");
 const analytics_module_1 = require("./modules/analytics/analytics.module");
 const settings_module_1 = require("./modules/settings/settings.module");
 const knowledge_module_1 = require("./modules/knowledge/knowledge.module");
+const agents_module_1 = require("./modules/ai/agents/agents.module");
 const queue_module_1 = require("./modules/queue/queue.module");
 const request_id_middleware_1 = require("./common/middleware/request-id.middleware");
 let AppModule = class AppModule {
@@ -54,6 +55,7 @@ exports.AppModule = AppModule = __decorate([
             users_module_1.UsersModule,
             tenants_module_1.TenantsModule,
             ai_module_1.AIModule,
+            agents_module_1.AgentsModule,
             connectors_module_1.ConnectorsModule,
             notifications_module_1.NotificationsModule,
             courses_module_1.CoursesModule,

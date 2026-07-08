@@ -15,6 +15,7 @@ import { StudentsModule } from './modules/students/students.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { KnowledgeModule } from './modules/knowledge/knowledge.module';
+import { AgentsModule } from './modules/ai/agents/agents.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 
@@ -44,6 +45,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     UsersModule,
     TenantsModule,
     AIModule,
+    AgentsModule,
     ConnectorsModule,
     NotificationsModule,
     CoursesModule,
