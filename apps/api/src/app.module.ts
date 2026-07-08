@@ -16,6 +16,8 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { SettingsModule } from './modules/settings/settings.module';
 import { KnowledgeModule } from './modules/knowledge/knowledge.module';
 import { AgentsModule } from './modules/ai/agents/agents.module';
+import { EventsModule } from './modules/events/events.module';
+import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 
@@ -52,6 +54,8 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     StudentsModule,
     AnalyticsModule,
     KnowledgeModule,
+    EventsModule,
+    WebhooksModule,
     QueueModule,
     SettingsModule,
   ],

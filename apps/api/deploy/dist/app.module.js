@@ -25,6 +25,8 @@ const analytics_module_1 = require("./modules/analytics/analytics.module");
 const settings_module_1 = require("./modules/settings/settings.module");
 const knowledge_module_1 = require("./modules/knowledge/knowledge.module");
 const agents_module_1 = require("./modules/ai/agents/agents.module");
+const events_module_1 = require("./modules/events/events.module");
+const webhooks_module_1 = require("./modules/webhooks/webhooks.module");
 const queue_module_1 = require("./modules/queue/queue.module");
 const request_id_middleware_1 = require("./common/middleware/request-id.middleware");
 let AppModule = class AppModule {
@@ -62,6 +64,8 @@ exports.AppModule = AppModule = __decorate([
             students_module_1.StudentsModule,
             analytics_module_1.AnalyticsModule,
             knowledge_module_1.KnowledgeModule,
+            events_module_1.EventsModule,
+            webhooks_module_1.WebhooksModule,
             queue_module_1.QueueModule,
             settings_module_1.SettingsModule,
         ],

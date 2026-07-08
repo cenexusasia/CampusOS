@@ -28,6 +28,9 @@ export declare class AuthService {
         secret: string;
         qrCode: string;
     }>;
+    logout(userId: string): Promise<{
+        message: string;
+    }>;
     verifyMfa(userId: string, code: string): Promise<boolean>;
     private generateTokens;
 }

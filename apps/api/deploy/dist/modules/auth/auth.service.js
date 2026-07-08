@@ -225,6 +225,10 @@ let AuthService = AuthService_1 = class AuthService {
     async setupMfa(userId) {
         return { secret: 'placeholder', qrCode: 'placeholder' };
     }
+    async logout(userId) {
+        this.logger.log(`User ${userId} logged out`);
+        return { message: 'Logged out successfully' };
+    }
     async verifyMfa(userId, code) {
         return code === '123456';
     }
