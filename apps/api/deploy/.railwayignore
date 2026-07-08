@@ -1,0 +1,3 @@
+# Include dist files for Railway deployment
+!dist/
+!dist/**

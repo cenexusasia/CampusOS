@@ -1,0 +1,11 @@
+{
+  "build": {
+    "builder": "NIXPACKS",
+    "watchPatterns": ["apps/api/deploy/**"]
+  },
+  "deploy": {
+    "startCommand": "cd apps/api/deploy && node start.cjs",
+    "healthcheckPath": "/api/v1/health",
+    "restartPolicyType": "ON_FAILURE"
+  }
+}
