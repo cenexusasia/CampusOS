@@ -78,14 +78,39 @@ let AIService = AIService_1 = class AIService {
                 break;
             }
             case 'deepseek': {
-                const { createOpenAICompatible } = await Promise.resolve().then(() => __importStar(require('@ai-sdk/openai-compatible')));
-                const client = createOpenAICompatible({
-                    name: 'deepseek',
-                    baseURL: config.baseUrl ?? 'https://api.deepseek.com/v1',
-                    apiKey: config.apiKey,
+                const apiKey = config.apiKey;
+                const baseUrl = config.baseUrl ?? 'https://api.deepseek.com/v1';
+                const modelName2 = options.model ?? config.models[0] ?? 'deepseek-chat';
+                const response = await fetch(`${baseUrl}/chat/completions`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`,
+                    },
+                    body: JSON.stringify({
+                        model: modelName2,
+                        messages: options.messages.map((m) => ({ role: m.role, content: m.content })),
+                        system: options.system,
+                        temperature: options.temperature ?? 0.7,
+                        max_tokens: options.maxTokens ?? 4096,
+                    }),
                 });
-                model = client(modelName);
-                break;
+                if (!response.ok) {
+                    const errBody = await response.text();
+                    throw new Error(`DeepSeek API error ${response.status}: ${errBody}`);
+                }
+                const data = await response.json();
+                const choice = data.choices?.[0];
+                const finishReason = choice?.finish_reason ?? 'stop';
+                return {
+                    content: choice?.message?.content ?? '',
+                    finishReason,
+                    usage: {
+                        promptTokens: data.usage?.prompt_tokens ?? 0,
+                        completionTokens: data.usage?.completion_tokens ?? 0,
+                        totalTokens: data.usage?.total_tokens ?? 0,
+                    },
+                };
             }
             default:
                 throw new Error(`Unknown provider: ${config.provider}`);
