@@ -20,6 +20,7 @@ import { EventsModule } from './modules/events/events.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
+import { ThrottleModule } from './modules/throttle/throttle.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
     }),
 
     // Feature modules
+    ThrottleModule,
     HealthModule,
     PrismaModule,
     AuthModule,

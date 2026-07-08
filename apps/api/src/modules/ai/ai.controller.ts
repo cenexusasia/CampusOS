@@ -1,8 +1,10 @@
 import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('AI')
 @Controller('ai')
+@Throttle({ default: { ttl: 60000, limit: 20 } })
 export class AIController {
   @Post('chat')
   @HttpCode(HttpStatus.OK)

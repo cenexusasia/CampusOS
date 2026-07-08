@@ -1,3 +1,4 @@
+import { Throttle } from '@nestjs/throttler';
 import {
   Controller,
   Post,
@@ -20,6 +21,7 @@ class ExecuteGoalDto {
 @Controller('api/v1/agents')
 @UseGuards(JwtAuthGuard)
 @ApiBearerAuth('access-token')
+@Throttle({ default: { ttl: 60000, limit: 20 } })
 export class AgentsController {
   constructor(private readonly agentService: AgentService) {}
 

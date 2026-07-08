@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, Logger, BadRequestException } from '@nestjs/common';
+import type { ConnectorPlugin } from '../connector.interface';
 import { PrismaService } from '../../../prisma/prisma.service';
 import mysql, { type Connection } from 'mysql2/promise';
 
@@ -44,7 +45,10 @@ interface MoodleEnrolment {
 }
 
 @Injectable()
-export class MoodleService {
+export class MoodleService implements ConnectorPlugin {
+  readonly provider = 'MOODLE';
+  readonly name = 'Moodle';
+  readonly capabilities = { sync: true, webhook: false, oauth: false, basicAuth: false, apiKey: false };
   private readonly logger = new Logger(MoodleService.name);
 
   constructor(private readonly prisma: PrismaService) {}
@@ -125,6 +129,11 @@ export class MoodleService {
     this.logger.log(`Moodle connector created: ${connector.id}`);
     return { success: true, connectionId: connector.id };
   }
+
+  async list(tenantId: string): Promise<ConnectorStatus[]> {
+    return this.listConnections(tenantId);
+  }
+
 
   async listConnections(tenantId: string): Promise<MoodleConnection[]> {
     this.logger.log(`Listing Moodle connections for tenant: ${tenantId}`);
