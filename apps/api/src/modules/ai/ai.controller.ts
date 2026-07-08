@@ -8,7 +8,14 @@ export class AIController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Generate AI response via DeepSeek' })
   async chat(@Body() body: { model?: string; system?: string; messages: { role: string; content: string }[] }) {
-    const apiKey = 'sk-216abaae29064182af776144aed845e3';
+    const apiKey = process.env.DEEPSEEK_API_KEY;
+
+    if (!apiKey) {
+      throw new Error(
+        'DEEPSEEK_API_KEY environment variable is not set. ' +
+        'Please configure it in your environment (e.g. Railway dashboard, .env file) and restart the application.',
+      );
+    }
     const model = body.model ?? 'deepseek-chat';
     
     const messages: any[] = body.messages.map(m => ({ role: m.role, content: m.content }));
