@@ -6,41 +6,30 @@
 - Review: Friday (Week 2)
 - Retro: Friday (Week 2)
 
-## Active Sprint: Sprint 1 — Production Hardening
+## Completed Sprint: Sprint 1 — Production Hardening ✅
 
 **Goal:** Resolve deployment debt, build Knowledge Base, add Connector Management UI.
 
-### Sprint Backlog
+| ID | Story | Status | Delivered |
+|----|-------|--------|-----------|
+| S1-01 | **Knowledge Base Backend** | ✅ | Module with 4 routes, Document + DocumentChunk models, text extraction, keyword search |
+| S1-02 | **Connector Management UI** | ✅ | Settings page with 6 connector cards, Sync/Connect/Disconnect actions |
+| S1-03 | **Connector API Endpoint** | ✅ | GET /api/v1/connectors returns tenant's configured connectors |
+| S1-03 | **Real Analytics Data** | ⏳ | Deferred to Sprint 2 — requires API endpoints first |
+| S1-04 | **Deploy Cleanup** | ✅ | Hardcoded key removed → Railway env var, orphaned files cleaned |
+| S1-05 | **Documentation Suite** | ✅ | 12 files, 81KB, 6 ADRs, OSS evaluation |
+
+## Active Sprint: Sprint 2 — AI RAG & Infrastructure
+
+**Goal:** Add job queue, document processing pipeline, semantic search, AI agents.
 
 | ID | Story | Points | Status |
 |----|-------|--------|--------|
-| S1-01 | **Knowledge Base Backend** — Upload/search/list/delete documents via API | 5 | 📝 |
-| S1-02 | **Connector Management UI** — Settings page with connector cards, sync controls | 3 | 📝 |
-| S1-03 | **Real Analytics Data** — Replace hardcoded charts with live API data | 3 | 📝 |
-| S1-04 | **Deploy Cleanup** — Remove hardcoded API key, orphaned files | 1 | 📝 |
-| S1-05 | **Documentation Suite** — PRD, Architecture, Roadmap, API, DB, Security, ADRs | 3 | ✅ |
-
-### Story Details
-
-#### S1-01: Knowledge Base Backend
-- **Files:** `apps/api/src/modules/knowledge/`
-- **Routes:** POST /upload, POST /search, GET /documents, DELETE /documents/:id
-- **Accepts:** PDF, TXT, MD files
-- **Storage:** Local `uploads/` directory, metadata in `Document` + `DocumentChunk` tables
-- **Search:** Keyword matching on DocumentChunk content
-- **Auth:** JWT + tenant-scoped
-
-#### S1-02: Connector Management UI
-- **Files:** `apps/web/src/app/(portal)/settings/connectors/page.tsx`
-- **Cards:** Moodle, OpenSIS, Google (OAuth stub), ERP, CRM, Chatbot (coming soon)
-- **Actions:** Connect, Sync Now, Disconnect
-- **Data:** Fetches from `/api/v1/connectors/*` endpoints
-
-#### S1-03: Real Analytics Data
-- **Files:** `apps/web/src/app/(portal)/analytics/page.tsx`
-- **Replace:** All hardcoded sample data with API calls
-- **Endpoints:** `/api/v1/analytics/*`
-- **States:** Loading, error, empty
+| S2-01 | **Redis + BullMQ Job Queue** — QueueModule, QueueService, graceful Redis fallback | 5 | ✅ |
+| S2-02 | **Document Processing Pipeline** — Text extraction (PDF/DOCX/TXT/MD), chunking, DocumentChunk creation | 5 | 🔄 |
+| S2-03 | **Semantic Search** — pgvector extension, DeepSeek embeddings, vector similarity search | 8 | 📝 |
+| S2-04 | **AI Agents** — Goal-driven agent framework, multi-step task execution | 8 | 📝 |
+| S2-05 | **Real Analytics Data** — Replace hardcoded charts with live API calls | 3 | 📝 |
 
 ### Definition of Done (per Story)
 - [ ] TypeScript compiles with zero errors
