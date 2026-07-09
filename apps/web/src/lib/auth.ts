@@ -44,7 +44,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!credentials?.email || !credentials?.password) return null;
         // Auth is handled by the NestJS API - this is just the UI layer
         try {
-          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/login`, {
+          // Note: authorize() runs server-side, so NEXT_PUBLIC_ vars are unavailable.
+          // Use API_URL first, then fall back for backwards compatibility.
+          const apiUrl = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || 'https://campusos-api-production-c965.up.railway.app';
+          const res = await fetch(`${apiUrl}/api/v1/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: credentials.email, password: credentials.password }),
