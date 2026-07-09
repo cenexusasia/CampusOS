@@ -24,6 +24,9 @@ import {
   FileText,
   Calendar,
   Zap,
+  Bot,
+  UserPlus,
+  Database,
   ChevronRight,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -308,6 +311,29 @@ export function DashboardClient() {
           </div>
         </>
       )}
+
+      {/* Recent Activity */}
+      <section>
+        <h2 className="text-lg font-semibold mb-4">Recent Activity</h2>
+        <div className="space-y-3">
+          {[
+            { id: 1, icon: <RefreshCw className="h-4 w-4 text-blue-600" />, message: 'Moodle sync completed — 12 courses updated', time: '2 hours ago', color: 'bg-blue-50' },
+            { id: 2, icon: <Bot className="h-4 w-4 text-green-600" />, message: 'AI Agent answered 3 questions in Knowledge Base', time: '4 hours ago', color: 'bg-green-50' },
+            { id: 3, icon: <UserPlus className="h-4 w-4 text-purple-600" />, message: 'Student Jane Doe enrolled in CS 101', time: '1 day ago', color: 'bg-purple-50' },
+            { id: 4, icon: <Database className="h-4 w-4 text-orange-600" />, message: 'Connector ERPNext synced 45 invoices', time: '1 day ago', color: 'bg-orange-50' },
+          ].map(a => (
+            <div key={a.id} className="flex items-start gap-3 p-3 bg-white rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+              <div className={`w-8 h-8 rounded-full ${a.color} flex items-center justify-center flex-shrink-0`}>
+                {a.icon}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-gray-900">{a.message}</p>
+                <p className="text-xs text-gray-400 mt-0.5">{a.time}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {/* System health + quick info */}
       <div className="grid gap-4 grid-cols-1 lg:grid-cols-3">
