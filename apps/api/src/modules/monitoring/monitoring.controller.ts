@@ -3,6 +3,7 @@ import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagg
 import { MonitoringService } from './monitoring.service';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { RolesGuard } from '../../common/guards/roles.guard';
+import { UserRole } from '../../shared';
 
 @ApiTags('Monitoring')
 @Controller('api/v1/metrics')
@@ -12,7 +13,7 @@ export class MonitoringController {
   constructor(private readonly monitoring: MonitoringService) {}
 
   @Get()
-  @Roles('admin')
+  @Roles(UserRole.SUPER_ADMIN)
   @ApiOperation({ summary: 'Get metrics summary', description: 'Returns aggregated application metrics (admin only)' })
   @ApiResponse({
     status: 200,
