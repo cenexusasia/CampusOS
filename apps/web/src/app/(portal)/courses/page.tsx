@@ -39,6 +39,9 @@ function computeProgress(code: string): number {
 
 export default function CoursesPage() {
   const [search, setSearch] = useState('');
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newCourse, setNewCourse] = useState({ name: '', code: '', description: '', credits: 3 });
+  const [saving, setSaving] = useState(false);
 
   const filtered = SAMPLE_COURSES.filter(
     (c) =>
@@ -62,7 +65,7 @@ export default function CoursesPage() {
             Browse and manage course offerings, curricula, and schedules.
           </p>
         </div>
-        <button className="btn-primary">
+        <button className="btn-primary" onClick={() => setShowAddModal(true)}>
           <Plus className="h-4 w-4" />
           Add Course
         </button>
@@ -156,6 +159,44 @@ export default function CoursesPage() {
           title="No courses yet"
           description="Connect your LMS to sync courses."
         />
+      )}
+
+      {/* Add Course Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setShowAddModal(false)}>
+          <div className="w-full max-w-md rounded-xl border bg-card p-6 shadow-lg" onClick={e => e.stopPropagation()}>
+            <h2 className="text-lg font-semibold mb-4">Add Course</h2>
+            <div className="space-y-3">
+              <div>
+                <label className="text-sm font-medium">Course Name</label>
+                <input value={newCourse.name} onChange={e => setNewCourse(p => ({...p, name: e.target.value}))} className="input-modern w-full mt-1" placeholder="e.g. Introduction to AI" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Course Code</label>
+                <input value={newCourse.code} onChange={e => setNewCourse(p => ({...p, code: e.target.value}))} className="input-modern w-full mt-1" placeholder="e.g. CS 401" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Description</label>
+                <textarea value={newCourse.description} onChange={e => setNewCourse(p => ({...p, description: e.target.value}))} className="input-modern w-full mt-1" rows={3} placeholder="Course description" />
+              </div>
+              <div>
+                <label className="text-sm font-medium">Credits</label>
+                <input type="number" value={newCourse.credits} onChange={e => setNewCourse(p => ({...p, credits: parseInt(e.target.value) || 0}))} className="input-modern w-full mt-1" min={1} max={6} />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-6">
+              <button onClick={() => setShowAddModal(false)} className="btn-ghost">Cancel</button>
+              <button onClick={async () => {
+                setSaving(true);
+                await new Promise(r => setTimeout(r, 500));
+                setShowAddModal(false);
+                setSaving(false);
+              }} disabled={saving || !newCourse.name || !newCourse.code} className="btn-primary">
+                {saving ? 'Saving...' : 'Create Course'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
