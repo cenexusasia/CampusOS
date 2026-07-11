@@ -142,6 +142,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
                 : 'text-muted-foreground hover:bg-accent hover:text-foreground',
             )}
             aria-label="Notifications"
+            aria-expanded={notifOpen}
           >
             <Bell className="h-4 w-4" />
             <span className="absolute right-1.5 top-1.5 flex h-2 w-2 rounded-full bg-destructive ring-2 ring-background" />
@@ -194,6 +195,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
                 : 'text-muted-foreground hover:bg-accent hover:text-foreground',
             )}
             aria-label="User menu"
+            aria-expanded={dropdownOpen}
           >
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
               {userInitials}

@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
+const core_1 = require("@nestjs/core");
 const config_1 = require("@nestjs/config");
 const serve_static_1 = require("@nestjs/serve-static");
 const node_path_1 = require("node:path");
@@ -30,6 +31,8 @@ const webhooks_module_1 = require("./modules/webhooks/webhooks.module");
 const queue_module_1 = require("./modules/queue/queue.module");
 const request_id_middleware_1 = require("./common/middleware/request-id.middleware");
 const throttle_module_1 = require("./modules/throttle/throttle.module");
+const monitoring_module_1 = require("./modules/monitoring/monitoring.module");
+const monitoring_interceptor_1 = require("./common/interceptors/monitoring.interceptor");
 let AppModule = class AppModule {
     configure(consumer) {
         consumer.apply(request_id_middleware_1.RequestIdMiddleware).forRoutes('*');
@@ -70,6 +73,13 @@ exports.AppModule = AppModule = __decorate([
             webhooks_module_1.WebhooksModule,
             queue_module_1.QueueModule,
             settings_module_1.SettingsModule,
+            monitoring_module_1.MonitoringModule,
+        ],
+        providers: [
+            {
+                provide: core_1.APP_INTERCEPTOR,
+                useClass: monitoring_interceptor_1.MonitoringInterceptor,
+            },
         ],
     })
 ], AppModule);

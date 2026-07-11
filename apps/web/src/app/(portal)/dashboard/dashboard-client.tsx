@@ -236,6 +236,7 @@ export function DashboardClient() {
           <Link
             key={action.label}
             href={action.href}
+            aria-label={`Quick action: ${action.label}`}
             className="inline-flex items-center justify-between gap-2 rounded-lg border bg-card px-4 py-3 sm:py-2 text-sm font-medium shadow-sm transition-all duration-200 hover:border-primary/30 hover:shadow-md sm:hover:-translate-y-0.5"
           >
             <span className="inline-flex items-center gap-2">
@@ -266,7 +267,7 @@ export function DashboardClient() {
       ) : (
         <>
           {dataError && (
-            <div className="flex items-center gap-3 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 slide-up">
+            <div role="alert" className="flex items-center gap-3 rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 slide-up">
               <AlertCircle className="h-4 w-4 shrink-0 text-destructive" />
               <p className="flex-1 text-sm text-destructive">{dataError}</p>
               <button
@@ -285,6 +286,7 @@ export function DashboardClient() {
                 key={stat.label}
                 className="card-lift rounded-xl border bg-card p-5"
                 style={{ animationDelay: `${i * 0.1}s` }}
+                aria-label={`${stat.label}: ${stat.value ?? '—'} (${stat.trend}, ${stat.description})`}
               >
                 <div className="flex items-start justify-between">
                   <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${stat.color}`}>
@@ -451,7 +453,7 @@ export function DashboardClient() {
       </div>
 
       {/* AI Chat section */}
-      <div id="ai-chat" className="h-[400px] sm:h-[600px]">
+      <div id="ai-chat" aria-label="AI Assistant" className="h-[400px] sm:h-[600px]">
         <AiChat />
       </div>
     </div>

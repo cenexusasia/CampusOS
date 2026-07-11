@@ -63,6 +63,13 @@ import { MonitoringInterceptor } from './common/interceptors/monitoring.intercep
     WebhooksModule,
     QueueModule,
     SettingsModule,
+    MonitoringModule,
+  ],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: MonitoringInterceptor,
+    },
   ],
 })
 export class AppModule implements NestModule {

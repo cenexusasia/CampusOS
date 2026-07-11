@@ -73,6 +73,7 @@ export function DataTable<T extends { id: string }>({
           <input
             type="text"
             placeholder="Search..."
+            aria-label="Search table"
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
@@ -80,7 +81,7 @@ export function DataTable<T extends { id: string }>({
         </div>
       )}
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full" role="grid" aria-label="Data table">
           <thead>
             <tr className="border-b border-gray-100">
               {columns.map(col => (
@@ -90,6 +91,11 @@ export function DataTable<T extends { id: string }>({
                     col.sortable ? 'cursor-pointer hover:text-gray-600' : ''
                   }`}
                   onClick={() => col.sortable && toggleSort(col.key)}
+                  {...(col.sortable && sortKey === col.key
+                    ? { 'aria-sort': sortDir === 'asc' ? 'ascending' : 'descending' as const }
+                    : col.sortable
+                    ? { 'aria-sort': 'none' as const }
+                    : {})}
                 >
                   <div className="flex items-center gap-1">
                     {col.label}
