@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   User,
   Bell,
@@ -42,6 +42,29 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
   const [theme, setTheme] = useState('system');
   const [language, setLanguage] = useState('en');
+
+  // Apply theme to <html> element
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else if (theme === 'light') {
+      root.classList.remove('dark');
+    } else {
+      // 'system' — follow OS preference
+      const media = window.matchMedia('(prefers-color-scheme: dark)');
+      const handler = () => {
+        if (media.matches) {
+          root.classList.add('dark');
+        } else {
+          root.classList.remove('dark');
+        }
+      };
+      handler();
+      media.addEventListener('change', handler);
+      return () => media.removeEventListener('change', handler);
+    }
+  }, [theme]);
 
   const toggleNotification = (key: keyof NotificationPreferences) => {
     setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));

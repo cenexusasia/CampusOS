@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192" fill="none">
+  <!-- Background circle -->
+  <rect width="192" height="192" rx="32" fill="#2563eb"/>
+  <!-- Graduation cap -->
+  <path d="M96 48L40 76L96 104L152 76L96 48Z" fill="white" opacity="0.95"/>
+  <path d="M40 76V104L96 132L152 104V76" fill="white" opacity="0.7" stroke="white" stroke-width="3"/>
+  <!-- Tassel -->
+  <path d="M96 104V124C96 124 106 128 116 124" stroke="white" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <!-- Dot at end of tassel -->
+  <circle cx="118" cy="124" r="3" fill="white"/>
+</svg>
