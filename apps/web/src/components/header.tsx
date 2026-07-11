@@ -88,6 +88,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search anything..."
+              aria-label="Search"
               className="w-full md:w-64 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
               onKeyDown={(e) => {
                 if (e.key === 'Escape') {
@@ -104,6 +105,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
                 setSearchOpen(false);
                 setSearchQuery('');
               }}
+              aria-label="Close search"
               className="rounded p-0.5 text-muted-foreground hover:text-foreground"
             >
               <X className="h-3.5 w-3.5" />
@@ -112,6 +114,7 @@ export function Header({ onMenuToggle }: HeaderProps) {
         ) : (
           <button
             onClick={() => setSearchOpen(true)}
+            aria-label="Open search"
             className="touch-target flex items-center gap-2 rounded-lg border border-transparent px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:border-border hover:bg-accent hover:text-foreground"
           >
             <Search className="h-4 w-4" />

@@ -71,13 +71,13 @@ function LoginForm() {
 
           {/* Error message with animation */}
           {displayError && (
-            <div className="mb-4 sm:mb-5 flex items-start gap-2.5 rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive slide-up">
+            <div id="login-error" role="alert" className="mb-4 sm:mb-5 flex items-start gap-2.5 rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive slide-up">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{displayError}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+          <form onSubmit={handleSubmit} aria-label="Sign in form" className="space-y-3 sm:space-y-4">
             <div className="space-y-1.5">
               <label htmlFor="email" className="text-sm font-medium text-foreground">
                 Email
@@ -91,6 +91,7 @@ function LoginForm() {
                 required
                 disabled={isLoading}
                 autoComplete="email"
+                aria-describedby={displayError ? 'login-error' : undefined}
                 className="input-modern touch-target"
               />
             </div>
@@ -109,11 +110,13 @@ function LoginForm() {
                   required
                   disabled={isLoading}
                   autoComplete="current-password"
+                  aria-describedby={displayError ? 'login-error' : undefined}
                   className="input-modern pr-10 touch-target"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 text-muted-foreground/60 hover:text-muted-foreground transition-colors"
                   tabIndex={-1}
                 >

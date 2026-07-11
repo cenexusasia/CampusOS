@@ -13,6 +13,7 @@ import {
   GraduationCap,
   Building2,
   Bot,
+  Shield,
   MoreHorizontal,
   ChevronLeft,
   ChevronRight,
@@ -29,6 +30,7 @@ const navigation = [
   { name: 'Departments', href: '/departments', icon: Building2 },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Settings', href: '/settings', icon: Settings },
+  { name: 'Roles', href: '/settings/roles', icon: Shield },
 ];
 
 const mainLinks = navigation.slice(0, 4);
@@ -82,6 +84,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
           key={item.href}
           href={item.href}
           title={!showLabels ? item.name : undefined}
+          aria-current={isActive ? 'page' : undefined}
           className={cn(
             'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
             isActive
@@ -119,6 +122,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       <div className="border-t border-sidebar-border p-3">
         <button
           onClick={onToggle}
+          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-sidebar-foreground/60 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
         >
           {collapsed ? (
@@ -141,6 +145,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* ===================== */}
       <aside
         ref={sidebarRef}
+        aria-label="Main navigation"
         className={cn(
           'hidden lg:flex flex-col bg-sidebar-background transition-all duration-300 ease-in-out',
           collapsed ? 'w-[var(--sidebar-collapsed-width)]' : 'w-[var(--sidebar-width)]',
@@ -153,6 +158,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* Tablet sidebar (md to lg) — collapsible with toggle */}
       {/* ================================================== */}
       <aside
+        aria-label="Main navigation"
         className={cn(
           'hidden md:flex lg:hidden flex-col bg-sidebar-background border-r border-sidebar-border transition-all duration-300 ease-in-out',
           collapsed ? 'w-[var(--sidebar-collapsed-width)]' : 'w-[var(--sidebar-width)]',
@@ -175,6 +181,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* Mobile drawer — slide-out with ALL navigation links */}
       {/* ================================================== */}
       <aside
+        aria-label="Main navigation"
         className={cn(
           'fixed inset-y-0 left-0 z-50 flex w-[var(--sidebar-width)] flex-col bg-sidebar-background',
           'transition-transform duration-300 ease-in-out md:hidden',
@@ -210,13 +217,15 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
       {/* Mobile bottom tab   */}
       {/* ================== */}
       {isMobile && (
-        <nav className="fixed inset-x-0 bottom-0 z-50 flex items-center justify-around border-t bg-background px-2 pb-safe shadow-[0_-1px_0_rgba(0,0,0,0.05)] md:hidden">
+        <nav role="tablist" aria-label="Main navigation" className="fixed inset-x-0 bottom-0 z-50 flex items-center justify-around border-t bg-background px-2 pb-safe shadow-[0_-1px_0_rgba(0,0,0,0.05)] md:hidden">
           {mainLinks.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
             return (
               <Link
                 key={item.href}
                 href={item.href}
+                role="tab"
+                aria-selected={isActive}
                 className={cn(
                   'flex flex-col items-center gap-0.5 py-2 px-2 min-w-0 transition-colors min-h-[44px] min-w-[44px]',
                   isActive

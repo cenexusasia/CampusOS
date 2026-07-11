@@ -1,4 +1,5 @@
 import { Module, type MiddlewareConsumer, type NestModule } from '@nestjs/common';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'node:path';
@@ -21,6 +22,8 @@ import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { ThrottleModule } from './modules/throttle/throttle.module';
+import { MonitoringModule } from './modules/monitoring/monitoring.module';
+import { MonitoringInterceptor } from './common/interceptors/monitoring.interceptor';
 
 @Module({
   imports: [
