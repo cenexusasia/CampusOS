@@ -3,7 +3,7 @@
 import { Suspense, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Loader2, AlertCircle, GraduationCap, Eye, EyeOff } from 'lucide-react';
+import { Loader2, AlertCircle, GraduationCap, Eye, EyeOff, Shield } from 'lucide-react';
 
 function LoginForm() {
   const router = useRouter();
@@ -145,9 +145,26 @@ function LoginForm() {
             </button>
           </form>
 
-          <p className="mt-5 sm:mt-6 text-center text-xs text-muted-foreground">
-            SSO and OAuth providers will be available in a future update.
-          </p>
+          {/* SSO Divider */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
+            </div>
+          </div>
+
+          {/* SSO Buttons */}
+          <div className="space-y-2">
+            <button
+              onClick={() => signIn('authentik', { callbackUrl })}
+              className="btn-outline w-full touch-target flex items-center justify-center gap-2"
+            >
+              <Shield className="h-4 w-4" />
+              Continue with Authentik
+            </button>
+          </div>
         </div>
       </div>
     </div>

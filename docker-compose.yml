@@ -100,6 +100,91 @@ services:
     networks:
       - campusos-network
 
+  # ---- Authentik SSO --------------------------------------------------------
+  authentik-server:
+    image: ghcr.io/goauthentik/server:latest
+    command: server
+    container_name: campusos-authentik-server
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: db
+      AUTHENTIK_POSTGRESQL__USER: postgres
+      AUTHENTIK_POSTGRESQL__PASSWORD: postgres
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_SECRET_KEY: authentik-local-dev-secret-key-2026
+      AUTHENTIK_BOOTSTRAP_PASSWORD: authentik-admin
+      AUTHENTIK_BOOTSTRAP_EMAIL: admin@campusos.com
+    ports:
+      - "${AUTHENTIK_HTTP_PORT:-9000}:9000"
+      - "${AUTHENTIK_HTTPS_PORT:-9443}:9443"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - campusos-network
+    restart: unless-stopped
+
+  authentik-worker:
+    image: ghcr.io/goauthentik/server:latest
+    command: worker
+    container_name: campusos-authentik-worker
+    environment:
+      AUTHENTIK_REDIS__HOST: redis
+      AUTHENTIK_POSTGRESQL__HOST: db
+      AUTHENTIK_POSTGRESQL__USER: postgres
+      AUTHENTIK_POSTGRESQL__PASSWORD: postgres
+      AUTHENTIK_POSTGRESQL__NAME: authentik
+      AUTHENTIK_SECRET_KEY: authentik-local-dev-secret-key-2026
+    depends_on:
+      - authentik-server
+    networks:
+      - campusos-network
+    restart: unless-stopped
+
+  # ---- Temporal Workflow Engine ----------------------------------------------
+  temporal:
+    image: temporalio/auto-setup:latest
+    container_name: campusos-temporal
+    environment:
+      DB: postgresql
+      DB_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-campusos}
+      POSTGRES_PWD: ${POSTGRES_PASSWORD:-campusos}
+      POSTGRES_SEEDS: db
+    ports:
+      - "${TEMPORAL_PORT:-7233}:7233"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - campusos-network
+    restart: unless-stopped
+
+  temporal-admin-tools:
+    image: temporalio/admin-tools:latest
+    container_name: campusos-temporal-admin
+    depends_on:
+      - temporal
+    networks:
+      - campusos-network
+    restart: unless-stopped
+
+  temporal-ui:
+    image: temporalio/ui:latest
+    container_name: campusos-temporal-ui
+    environment:
+      TEMPORAL_ADDRESS: temporal:7233
+    ports:
+      - "${TEMPORAL_UI_PORT:-8080}:8080"
+    depends_on:
+      - temporal
+    networks:
+      - campusos-network
+    restart: unless-stopped
+
+
 # ---- Volumes ---------------------------------------------------------------
 volumes:
   postgres_data:

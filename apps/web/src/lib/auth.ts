@@ -1,4 +1,5 @@
 import NextAuth from 'next-auth';
+import AuthentikProvider from 'next-auth/providers/authentik';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 
@@ -9,6 +10,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     error: '/login',
   },
   providers: [
+    AuthentikProvider({
+      clientId: process.env.AUTH_AUTHENTIK_ID || '',
+      clientSecret: process.env.AUTH_AUTHENTIK_SECRET || '',
+      issuer: process.env.AUTH_AUTHENTIK_ISSUER || 'http://localhost:9000/application/o/campusos/',
+    }),
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_ID || '',
       clientSecret: process.env.AUTH_GOOGLE_SECRET || '',
