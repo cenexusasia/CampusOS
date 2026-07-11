@@ -15,6 +15,7 @@ const swagger_1 = require("@nestjs/swagger");
 const monitoring_service_1 = require("./monitoring.service");
 const roles_decorator_1 = require("../../common/decorators/roles.decorator");
 const roles_guard_1 = require("../../common/guards/roles.guard");
+const shared_1 = require("../../shared");
 let MonitoringController = class MonitoringController {
     monitoring;
     constructor(monitoring) {
@@ -27,7 +28,7 @@ let MonitoringController = class MonitoringController {
 exports.MonitoringController = MonitoringController;
 __decorate([
     (0, common_1.Get)(),
-    (0, roles_decorator_1.Roles)('admin'),
+    (0, roles_decorator_1.Roles)(shared_1.UserRole.SUPER_ADMIN),
     (0, swagger_1.ApiOperation)({ summary: 'Get metrics summary', description: 'Returns aggregated application metrics (admin only)' }),
     (0, swagger_1.ApiResponse)({
         status: 200,

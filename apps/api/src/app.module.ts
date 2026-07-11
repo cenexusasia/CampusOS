@@ -20,6 +20,7 @@ import { AgentsModule } from './modules/ai/agents/agents.module';
 import { EventsModule } from './modules/events/events.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { QueueModule } from './modules/queue/queue.module';
+import { TemporalModule } from './modules/temporal/temporal.module';
 import { RequestIdMiddleware } from './common/middleware/request-id.middleware';
 import { ThrottleModule } from './modules/throttle/throttle.module';
 import { MonitoringModule } from './modules/monitoring/monitoring.module';
@@ -62,6 +63,7 @@ import { MonitoringInterceptor } from './common/interceptors/monitoring.intercep
     EventsModule,
     WebhooksModule,
     QueueModule,
+    TemporalModule,
     SettingsModule,
     MonitoringModule,
   ],

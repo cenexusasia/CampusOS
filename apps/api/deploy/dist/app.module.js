@@ -29,6 +29,7 @@ const agents_module_1 = require("./modules/ai/agents/agents.module");
 const events_module_1 = require("./modules/events/events.module");
 const webhooks_module_1 = require("./modules/webhooks/webhooks.module");
 const queue_module_1 = require("./modules/queue/queue.module");
+const temporal_module_1 = require("./modules/temporal/temporal.module");
 const request_id_middleware_1 = require("./common/middleware/request-id.middleware");
 const throttle_module_1 = require("./modules/throttle/throttle.module");
 const monitoring_module_1 = require("./modules/monitoring/monitoring.module");
@@ -72,6 +73,7 @@ exports.AppModule = AppModule = __decorate([
             events_module_1.EventsModule,
             webhooks_module_1.WebhooksModule,
             queue_module_1.QueueModule,
+            temporal_module_1.TemporalModule,
             settings_module_1.SettingsModule,
             monitoring_module_1.MonitoringModule,
         ],
